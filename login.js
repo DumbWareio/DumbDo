@@ -1,12 +1,10 @@
 // DOM Elements
-const loginForm = document.getElementById('loginForm');
+const pinInputs = [...document.querySelectorAll('.pin-input')];
 const pinError = document.getElementById('pinError');
-const attemptsRemaining = document.getElementById('attemptsRemaining');
-const lockoutNotice = document.getElementById('lockoutNotice');
 const themeToggle = document.getElementById('themeToggle');
-const moonIcon = themeToggle.querySelector('.moon');
-const sunIcon = themeToggle.querySelector('.sun');
-let pinInputs = [];
+const oidcLoginBtn = document.getElementById('oidcLoginBtn');
+const pinSection = document.getElementById('pinSection');
+let currentAttempts = 5;
 
 // Theme Management
 function updateThemeIcons() {
@@ -26,148 +24,83 @@ themeToggle.addEventListener('click', () => {
     updateThemeIcons();
 });
 
-// Check PIN status periodically
-async function checkPinStatus() {
+async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/pin-required');
-        const { locked, lockoutMinutes, attemptsLeft } = await response.json();
+        const response = await fetch('/api/auth-status');
+        const data = await response.json();
         
-        if (locked) {
-            showLockout(lockoutMinutes);
-            pinInputs.forEach(input => input.disabled = true);
-        } else {
-            pinInputs.forEach(input => input.disabled = false);
-            if (attemptsLeft < 5) {
-                showError('', attemptsLeft);
-            }
-        }
-    } catch (error) {
-        console.error('Failed to check PIN status:', error);
-    }
-}
-
-// PIN Management
-async function setupPinInputs() {
-    try {
-        const response = await fetch('/api/pin-required');
-        const { required, length, locked, lockoutMinutes, attemptsLeft } = await response.json();
-        
-        // If no PIN is required, we shouldn't be on this page
-        if (!required) {
+        if (data.isAuthenticated) {
             window.location.replace('/');
-            return;
+            return true;
         }
         
-        const container = document.querySelector('.pin-input-container');
-        container.innerHTML = '';
-        
-        // Create PIN inputs
-        for (let i = 0; i < length; i++) {
-            const input = document.createElement('input');
-            input.type = 'password';
-            input.maxLength = 1;
-            input.pattern = '[0-9]';
-            input.inputMode = 'numeric';
-            input.className = 'pin-input';
-            input.setAttribute('aria-label', `PIN digit ${i + 1}`);
-            container.appendChild(input);
-            
-            if (locked) {
-                input.disabled = true;
-            }
+        // Show PIN section if enabled
+        if (data.pinEnabled) {
+            pinSection.style.display = 'block';
         }
         
-        // Update pinInputs array
-        pinInputs = [...document.querySelectorAll('.pin-input')];
-        setupPinInputListeners();
-        
-        if (locked) {
-            showLockout(lockoutMinutes);
-        } else {
-            if (attemptsLeft < 5) {
-                showError('', attemptsLeft);
-            }
-            pinInputs[0].focus();
-        }
-
-        // Start periodic status check
-        setInterval(checkPinStatus, 10000); // Check every 10 seconds
+        return false;
     } catch (error) {
-        showError('Failed to initialize PIN inputs');
+        console.error('Failed to check auth status:', error);
+        return false;
     }
 }
 
-function setupPinInputListeners() {
+// OIDC Login handler
+oidcLoginBtn.addEventListener('click', async () => {
+    try {
+        window.location.href = '/auth/login';
+    } catch (error) {
+        console.error('OIDC login failed:', error);
+        pinError.textContent = 'OIDC login failed. Please try PIN authentication or try again later.';
+    }
+});
+
+function setupPinAuth() {
     pinInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            const value = e.target.value;
-            
-            // Add/remove the has-value class
-            input.classList.toggle('has-value', value !== '');
-            
-            if (value && index < pinInputs.length - 1) {
-                pinInputs[index + 1].focus();
-            }
-            
-            // Check if all inputs are filled
-            const pin = pinInputs.map(input => input.value).join('');
-            if (pin.length === pinInputs.length) {
-                verifyPin(pin);
-            }
-        });
-
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                pinInputs[index - 1].focus();
-                pinInputs[index - 1].classList.remove('has-value');
-            }
-        });
-
-        input.addEventListener('keypress', (e) => {
-            if (!/[0-9]/.test(e.key)) {
+            if (e.key === 'Backspace') {
+                if (input.value === '') {
+                    if (index > 0) {
+                        pinInputs[index - 1].focus();
+                        pinInputs[index - 1].value = '';
+                    }
+                } else {
+                    input.value = '';
+                }
                 e.preventDefault();
             }
         });
+
+        input.addEventListener('input', (e) => {
+            const value = e.target.value;
+            pinError.textContent = '';
+            
+            if (value.length === 1) {
+                if (index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                } else {
+                    const pin = pinInputs.map(input => input.value).join('');
+                    verifyPin(pin);
+                }
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').slice(0, 4);
+            if (/^\d+$/.test(pastedData)) {
+                pastedData.split('').forEach((digit, i) => {
+                    if (i < pinInputs.length) {
+                        pinInputs[i].value = digit;
+                    }
+                });
+                if (pastedData.length === 4) {
+                    verifyPin(pastedData);
+                }
+            }
+        });
     });
-}
-
-function showError(message, attemptsLeft = null) {
-    if (message) {
-        pinError.textContent = message;
-        pinError.setAttribute('aria-hidden', 'false');
-    } else {
-        pinError.setAttribute('aria-hidden', 'true');
-    }
-    
-    // Handle attempts remaining
-    if (attemptsLeft !== null) {
-        attemptsRemaining.textContent = `${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} remaining`;
-        attemptsRemaining.setAttribute('aria-hidden', 'false');
-    } else {
-        attemptsRemaining.setAttribute('aria-hidden', 'true');
-    }
-}
-
-function showLockout(minutes) {
-    lockoutNotice.textContent = `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
-    lockoutNotice.setAttribute('aria-hidden', 'false');
-    pinError.setAttribute('aria-hidden', 'true');
-    attemptsRemaining.setAttribute('aria-hidden', 'true');
-}
-
-function clearErrors() {
-    pinError.setAttribute('aria-hidden', 'true');
-    attemptsRemaining.setAttribute('aria-hidden', 'true');
-    lockoutNotice.setAttribute('aria-hidden', 'true');
-}
-
-function clearInputs() {
-    pinInputs.forEach(input => {
-        input.value = '';
-        input.classList.remove('has-value');
-    });
-    clearErrors();
-    pinInputs[0].focus();
 }
 
 async function verifyPin(pin) {
@@ -179,48 +112,51 @@ async function verifyPin(pin) {
             },
             body: JSON.stringify({ pin })
         });
-        
+
         const data = await response.json();
-        
-        if (data.valid) {
-            // Use replace to prevent back button from returning to login
+
+        if (response.ok && data.valid) {
             window.location.replace('/');
             return;
         }
-        
-        if (data.locked) {
-            showLockout(data.lockoutMinutes);
-            pinInputs.forEach(input => input.disabled = true);
+
+        currentAttempts--;
+        if (currentAttempts <= 0) {
+            pinError.textContent = 'Too many attempts. Please try again later or use OIDC login.';
+            pinInputs.forEach(input => {
+                input.disabled = true;
+            });
         } else {
-            showError(data.error, data.attemptsLeft);
+            pinError.textContent = `Invalid PIN. ${currentAttempts} attempts remaining.`;
+            pinInputs.forEach(input => input.value = '');
+            pinInputs[0].focus();
         }
-        clearInputs();
-
-        // Check status immediately after a failed attempt
-        await checkPinStatus();
     } catch (error) {
-        showError('Failed to verify PIN');
-        clearInputs();
+        console.error('Error:', error);
+        pinError.textContent = 'An error occurred. Please try again.';
     }
 }
 
-// Initialize only if we need to be on this page
-async function init() {
-    try {
-        const response = await fetch('/api/pin-required');
-        const { required } = await response.json();
+function setupTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const currentTheme = localStorage.getItem('theme') || (prefersDark.matches ? 'dark' : 'light');
+
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
-        if (!required) {
-            window.location.replace('/');
-            return;
-        }
-        
-        // Only set up PIN inputs if we actually need them
-        await setupPinInputs();
-    } catch (error) {
-        showError('Failed to initialize login');
-    }
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
 }
 
-// Start initialization
-init(); 
+// Initialize
+document.addEventListener('DOMContentLoaded', async () => {
+    const isAuthenticated = await checkAuthStatus();
+    if (!isAuthenticated) {
+        setupPinAuth();
+        setupTheme();
+    }
+}); 

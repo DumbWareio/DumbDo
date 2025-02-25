@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "build": "mkdir -p public/js && npx esbuild login.js --bundle --outfile=public/js/login.bundle.js --format=esm && npx esbuild app.js --bundle --outfile=public/js/app.bundle.js --format=esm",
     "test": "echo \"Error: no test specified\" && exit 1",
     "convert-logo": "node scripts/convert-logo.js"
   },
@@ -15,9 +16,12 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-openid-connect": "^2.17.1",
+    "express-session": "^1.18.0"
   },
   "devDependencies": {
+    "esbuild": "^0.20.1",
     "http-server": "^14.1.1",
     "sharp": "^0.33.5"
   }

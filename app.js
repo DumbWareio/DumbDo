@@ -244,7 +244,34 @@ addListBtn.addEventListener('click', addNewList);
 
 // Enhanced fetch with auth headers
 async function fetchWithAuth(url, options = {}) {
-    return fetch(url, options);
+    // Get the PIN from cookie if it exists
+    const pin = document.cookie.split('; ').find(row => row.startsWith('DUMBDO_PIN='))?.split('=')[1];
+    
+    // Add headers
+    const headers = {
+        ...options.headers,
+        'Accept': 'application/json'
+    };
+    
+    // Add PIN header if available
+    if (pin) {
+        headers['x-pin'] = pin;
+    }
+    
+    const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include' // Include cookies in the request
+    });
+    
+    // If unauthorized, redirect to login
+    if (response.status === 401) {
+        const data = await response.json();
+        window.location.href = data.loginUrl || '/login';
+        throw new Error('Authentication required');
+    }
+    
+    return response;
 }
 
 // Theme Management
