@@ -1,0 +1,13 @@
+services:
+  dumbdo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dumbwareio/dumbdo:latest
+    env_file:
+      - .env
+    ports:
+      - 2021:3000
+    volumes:
+      - ./data:/app/data    
+    restart: unless-stopped 

@@ -14,23 +14,33 @@
     </script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="app login-page">
+<body class="login-page">
+    <div class="container">
         <div class="login-container">
             <h1>DumbDo</h1>
-            <div class="login-box">
-                <h2>Enter PIN</h2>
-                <p class="pin-description">Please enter your PIN to access your todos.</p>
-                <form id="loginForm">
-                    <div class="pin-input-container">
-                        <!-- PIN inputs will be generated dynamically -->
+            <p>A stupidly simple todo list</p>
+            
+            <div class="auth-options">
+                <button id="oidcLoginBtn" class="btn btn-primary">
+                    Login with OIDC
+                </button>
+                
+                <div id="pinSection" style="display: none;">
+                    <!-- PIN login as fallback -->
+                    <div class="divider">
+                        <span>or use PIN</span>
                     </div>
-                    <div class="pin-status">
-                        <p id="attemptsRemaining" class="attempts-remaining" aria-hidden="true">5 attempts remaining</p>
-                        <p id="pinError" class="pin-error" aria-hidden="true">Invalid PIN. Please try again.</p>
-                        <p id="lockoutNotice" class="lockout-notice" aria-hidden="true">Too many attempts. Please try again later.</p>
+                    
+                    <div id="pinLogin">
+                        <div class="pin-container">
+                            <input type="password" maxlength="1" class="pin-input" pattern="[0-9]*" inputmode="numeric">
+                            <input type="password" maxlength="1" class="pin-input" pattern="[0-9]*" inputmode="numeric">
+                            <input type="password" maxlength="1" class="pin-input" pattern="[0-9]*" inputmode="numeric">
+                            <input type="password" maxlength="1" class="pin-input" pattern="[0-9]*" inputmode="numeric">
+                        </div>
+                        <div id="pinError" class="error-message"></div>
                     </div>
-                </form>
+                </div>
             </div>
             <button id="themeToggle" aria-label="Toggle theme">
                 <svg class="moon" viewBox="0 0 24 24">
@@ -50,6 +60,6 @@
             </button>
         </div>
     </div>
-    <script src="login.js"></script>
+    <script type="module" src="js/login.bundle.js"></script>
 </body>
 </html> 

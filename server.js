@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
+const { oidcMiddleware, requiresAuth } = require('./middleware/auth');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -15,6 +16,94 @@ const MAX_PIN_LENGTH = 10;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(oidcMiddleware);
+
+// Serve static files
+app.use(express.static('public'));
+app.use(express.static('.'));
+
+// Authentication routes
+app.get('/login', (req, res) => {
+    if (req.oidc && req.oidc.isAuthenticated()) {
+        return res.redirect('/');
+    }
+
+    // If it's an API request expecting JSON
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        return res.json({
+            error: 'Authentication required',
+            loginUrl: '/auth/login'
+        });
+    }
+
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/auth/login', (req, res) => {
+    if (req.oidc && req.oidc.isAuthenticated()) {
+        return res.redirect('/');
+    }
+    
+    try {
+        req.oidc.login({
+            returnTo: '/',
+            authorizationParams: {
+                prompt: 'login'
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.redirect('/login');
+    }
+});
+
+app.get('/auth/callback', (req, res) => {
+    // This route will be handled by the OIDC middleware
+    // After successful authentication, redirect to home
+    res.redirect('/');
+});
+
+app.get('/logout', (req, res) => {
+    if (req.oidc) {
+        try {
+            return req.oidc.logout({
+                returnTo: process.env.BASE_URL
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+    
+    // Fallback logout
+    res.clearCookie('appSession');
+    res.clearCookie('DUMBDO_PIN');
+    res.redirect('/login');
+});
+
+// API Routes
+app.get('/api/auth-status', (req, res) => {
+    res.json({
+        isAuthenticated: req.oidc ? req.oidc.isAuthenticated() : false,
+        user: req.oidc ? req.oidc.user : null,
+        pinEnabled: !!PIN
+    });
+});
+
+// Protected API routes
+app.get('/api/user', requiresAuth, (req, res) => {
+    if (!req.oidc || !req.oidc.user) {
+        return res.status(401).json({ 
+            error: 'Not authenticated',
+            loginUrl: '/login'
+        });
+    }
+    
+    res.json({
+        email: req.oidc.user.email,
+        name: req.oidc.user.name,
+        picture: req.oidc.user.picture
+    });
+});
 
 // Brute force protection
 const loginAttempts = new Map();  // Stores IP addresses and their attempt counts
@@ -163,17 +252,27 @@ function isValidPin(providedPin) {
 
 // PIN validation middleware - everything after this requires PIN
 app.use((req, res, next) => {
+    // Skip PIN validation if user is authenticated via OIDC
+    if (req.oidc && req.oidc.isAuthenticated()) {
+        return next();
+    }
+    
     const providedPin = req.cookies.DUMBDO_PIN || req.headers['x-pin'];
     
     if (isValidPin(providedPin)) {
         return next();
     }
 
-    if (req.xhr || req.path.startsWith('/api/')) {
-        return res.status(401).json({ error: 'Invalid PIN' });
+    // For API requests
+    if (req.xhr || req.path.startsWith('/api/') || req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ 
+            error: 'Authentication required',
+            loginUrl: '/login'
+        });
     }
     
-    if (req.path !== '/login') {
+    // For regular requests
+    if (req.path !== '/login' && !req.path.startsWith('/auth/')) {
         return res.redirect('/login');
     }
     
@@ -194,9 +293,6 @@ app.get('/login', (req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     }
 });
-
-// Protect all other static files
-app.use(express.static('.'));
 
 // Data directory and file path
 const DATA_DIR = path.join(__dirname, 'data');
@@ -220,28 +316,36 @@ async function initDataFile() {
 }
 
 // Protected API routes
-app.get('/api/todos', async (req, res) => {
+app.get('/api/todos', requiresAuth, async (req, res) => {
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
         res.json(JSON.parse(data));
     } catch (error) {
+        console.error('Error reading todos:', error);
         res.status(500).json({ error: 'Failed to read todos' });
     }
 });
 
-app.post('/api/todos', async (req, res) => {
+app.post('/api/todos', requiresAuth, async (req, res) => {
     try {
         await fs.writeFile(DATA_FILE, JSON.stringify(req.body, null, 2));
         res.json({ success: true });
     } catch (error) {
+        console.error('Error saving todos:', error);
         res.status(500).json({ error: 'Failed to save todos' });
     }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // Initialize and start server
 initDataFile().then(() => {
     app.listen(port, () => {
-        console.log(`DumbDo server running at http://localhost:${port}`);
+        console.log(`Server is running on port ${port}`);
         console.log('PIN protection:', PIN ? 'enabled' : 'disabled');
     });
 }); 

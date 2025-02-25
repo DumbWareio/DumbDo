@@ -1,31 +1,40 @@
-# Node
+# Node.js
 node_modules
 npm-debug.log
 yarn-debug.log
 yarn-error.log
 
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
 # Git
 .git
 .gitignore
 
-# IDE
-.vscode
+# Docker
+Dockerfile
+.dockerignore
+
+# Logs
+logs
+*.log
+
+# Runtime data
+data
+
+# Editor directories and files
 .idea
+.vscode
 *.swp
 *.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 
 # Application specific
-data/
-*.log
-.env
-
-# Scripts and generated assets
-scripts/
-assets/
-*.png
-!src/assets/*.png  # Keep source PNGs if any
 Boilerplate.md 
