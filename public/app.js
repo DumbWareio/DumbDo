@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinModal = document.getElementById('pinModal');
     const pinInputs = [...document.querySelectorAll('.pin-input')];
     const pinError = document.getElementById('pinError');
-    const clearCompletedBtn = document.getElementById('clearCompleted');
     const listSelector = document.getElementById('listSelector');
     const renameListBtn = document.getElementById('renameList');
     const deleteListBtn = document.getElementById('deleteList');
@@ -305,59 +304,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTodoElement(todo) {
         const li = document.createElement('li');
-        li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-        
-        // Add drag attributes only for non-completed items
-        if (!todo.completed) {
-            li.draggable = true;
-            li.setAttribute('data-todo-id', todo.text); // Using text as a simple identifier
-        }
-        
+        li.className = 'todo-item';
+        li.draggable = true;
+        li.setAttribute('data-todo-id', todo.text); // Using text as a simple identifier
+
+        // Remove the old checkbox-wrapper and just show the text and delete button
         li.innerHTML = `
-            <div class="checkbox-wrapper">
-                <input type="checkbox" ${todo.completed ? 'checked' : ''}>
-            </div>
             <span class="todo-text">${linkifyText(todo.text)}</span>
             <button class="delete-btn" aria-label="Delete todo">×</button>
         `;
 
-        const checkbox = li.querySelector('input');
-        const checkboxWrapper = li.querySelector('.checkbox-wrapper');
         const todoText = li.querySelector('.todo-text');
-        
-        // Add click handler to the wrapper
-        checkboxWrapper.addEventListener('click', (e) => {
-            // Only trigger if clicking the wrapper (not the checkbox directly)
-            if (e.target === checkboxWrapper) {
-                checkbox.checked = !checkbox.checked;
-                todo.completed = checkbox.checked;
-                renderTodos();
-                saveTodos();
-                toastManager.show(todo.completed ? 'Task completed! 🎉' : 'Task uncompleted');
-            }
-        });
-        
-        checkbox.addEventListener('change', () => {
-            todo.completed = checkbox.checked;
-            renderTodos();
-            saveTodos();
-            toastManager.show(todo.completed ? 'Task completed! 🎉' : 'Task uncompleted');
-        });
 
         // Make text editable on click
         todoText.addEventListener('click', (e) => {
-            // Don't trigger edit if clicking a link
             if (e.target.tagName === 'A') return;
-            
             const input = document.createElement('input');
             input.type = 'text';
             input.value = todo.text;
             input.className = 'edit-input';
-            
             const originalText = todoText.innerHTML;
             todoText.replaceWith(input);
             input.focus();
-            
             function saveEdit() {
                 const newText = input.value.trim();
                 if (newText && newText !== todo.text) {
@@ -370,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     todoText.innerHTML = originalText;
                 }
             }
-            
             input.addEventListener('blur', saveEdit);
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -391,56 +358,45 @@ document.addEventListener('DOMContentLoaded', () => {
             toastManager.show('Task deleted', 'error');
         });
 
-        // Add drag and drop event listeners for non-completed items
-        if (!todo.completed) {
-            li.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', todo.text);
-                li.classList.add('dragging');
-                // Set a custom drag image (optional)
-                const dragImage = li.cloneNode(true);
-                dragImage.style.position = 'absolute';
-                dragImage.style.top = '-1000px';
-                document.body.appendChild(dragImage);
-                e.dataTransfer.setDragImage(dragImage, 0, 0);
-                setTimeout(() => document.body.removeChild(dragImage), 0);
-            });
-
-            li.addEventListener('dragend', () => {
-                li.classList.remove('dragging');
-            });
-
-            li.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingItem = document.querySelector('.dragging');
-                if (draggingItem && !li.classList.contains('dragging') && !todo.completed) {
-                    const items = [...todoList.querySelectorAll('.todo-item:not(.completed)')];
-                    const currentPos = items.indexOf(draggingItem);
-                    const newPos = items.indexOf(li);
-                    
-                    if (currentPos !== newPos) {
-                        const rect = li.getBoundingClientRect();
-                        const midY = rect.top + rect.height / 2;
-                        const mouseY = e.clientY;
-                        
-                        if (mouseY < midY) {
-                            li.parentNode.insertBefore(draggingItem, li);
-                        } else {
-                            li.parentNode.insertBefore(draggingItem, li.nextSibling);
-                        }
-                        
-                        // Update the todos array to match the new order
-                        const activeTodos = todos[currentList].filter(t => !t.completed);
-                        const completedTodos = todos[currentList].filter(t => t.completed);
-                        const newOrder = [...document.querySelectorAll('.todo-item:not(.completed)')].map(item => {
-                            return activeTodos.find(t => t.text === item.getAttribute('data-todo-id'));
-                        });
-                        todos[currentList] = [...newOrder, ...completedTodos];
-                        saveTodos();
+        // Drag and drop event listeners
+        li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', todo.text);
+            li.classList.add('dragging');
+            const dragImage = li.cloneNode(true);
+            dragImage.style.position = 'absolute';
+            dragImage.style.top = '-1000px';
+            document.body.appendChild(dragImage);
+            e.dataTransfer.setDragImage(dragImage, 0, 0);
+            setTimeout(() => document.body.removeChild(dragImage), 0);
+        });
+        li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+        });
+        li.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if (draggingItem && !li.classList.contains('dragging')) {
+                const items = [...todoList.querySelectorAll('.todo-item')];
+                const currentPos = items.indexOf(draggingItem);
+                const newPos = items.indexOf(li);
+                if (currentPos !== newPos) {
+                    const rect = li.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    const mouseY = e.clientY;
+                    if (mouseY < midY) {
+                        li.parentNode.insertBefore(draggingItem, li);
+                    } else {
+                        li.parentNode.insertBefore(draggingItem, li.nextSibling);
                     }
+                    // Update the todos array to match the new order
+                    const newOrder = [...document.querySelectorAll('.todo-item')].map(item => {
+                        return todos[currentList].find(t => t.text === item.getAttribute('data-todo-id'));
+                    });
+                    todos[currentList] = newOrder;
+                    saveTodos();
                 }
-            });
-        }
-
+            }
+        });
         return li;
     }
 
@@ -457,41 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTodos() {
         todoList.innerHTML = '';
         const currentTodos = todos[currentList] || [];
-        
-        // Separate todos into active and completed
-        const activeTodos = currentTodos.filter(todo => !todo.completed);
-        const completedTodos = currentTodos.filter(todo => todo.completed);
-        
-        // Create a container for active todos
-        const activeTodosContainer = document.createElement('div');
-        activeTodosContainer.className = 'active-todos';
-        activeTodosContainer.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const draggingItem = document.querySelector('.dragging');
-            if (draggingItem) {
-                const items = [...activeTodosContainer.querySelectorAll('.todo-item')];
-                if (items.length === 0) {
-                    activeTodosContainer.appendChild(draggingItem);
-                }
-            }
-        });
-        todoList.appendChild(activeTodosContainer);
-        
-        // Render active todos
-        activeTodos.forEach(todo => {
-            activeTodosContainer.appendChild(createTodoElement(todo));
-        });
-        
-        // Add divider if there are both active and completed todos
-        if (activeTodos.length > 0 && completedTodos.length > 0) {
-            const divider = document.createElement('li');
-            divider.className = 'todo-divider';
-            divider.textContent = 'Completed';
-            todoList.appendChild(divider);
-        }
-        
-        // Render completed todos
-        completedTodos.forEach(todo => {
+        currentTodos.forEach(todo => {
             todoList.appendChild(createTodoElement(todo));
         });
     }
@@ -500,32 +422,17 @@ document.addEventListener('DOMContentLoaded', () => {
     todoForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = todoInput.value.trim();
-        
         if (text) {
-            const todo = { text, completed: false };
+            // Ensure the current list exists before pushing
+            if (!todos[currentList]) {
+                todos[currentList] = [];
+            }
+            const todo = { text };
             todos[currentList].push(todo);
             renderTodos();
             saveTodos();
             todoInput.value = '';
             toastManager.show('Task added');
-        }
-    });
-
-    // Clear completed tasks
-    clearCompletedBtn.addEventListener('click', () => {
-        const currentTodos = todos[currentList];
-        const completedCount = currentTodos.filter(todo => todo.completed).length;
-        
-        if (completedCount === 0) {
-            toastManager.show('No completed tasks to clear');
-            return;
-        }
-        
-        if (confirm(`Are you sure you want to delete ${completedCount} completed task${completedCount === 1 ? '' : 's'}?`)) {
-            todos[currentList] = currentTodos.filter(todo => !todo.completed);
-            renderTodos();
-            saveTodos();
-            toastManager.show(`Cleared ${completedCount} completed task${completedCount === 1 ? '' : 's'}`);
         }
     });
 

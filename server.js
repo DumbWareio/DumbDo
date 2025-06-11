@@ -248,13 +248,37 @@ async function initDataFile() {
     } catch {
         await fs.mkdir(DATA_DIR);
     }
-    
     try {
         await fs.access(DATA_FILE);
     } catch {
         await fs.writeFile(DATA_FILE, JSON.stringify({}));
     }
-    
+    // Remove completed property from all todos if present
+    try {
+        const data = await fs.readFile(DATA_FILE, 'utf8');
+        let todos = {};
+        try {
+            todos = JSON.parse(data);
+        } catch {}
+        if (todos && typeof todos === 'object') {
+            let changed = false;
+            Object.keys(todos).forEach(list => {
+                if (Array.isArray(todos[list])) {
+                    todos[list] = todos[list].map(todo => {
+                        if (todo && typeof todo === 'object' && 'completed' in todo) {
+                            changed = true;
+                            const { completed, ...rest } = todo;
+                            return rest;
+                        }
+                        return todo;
+                    });
+                }
+            });
+            if (changed) {
+                await fs.writeFile(DATA_FILE, JSON.stringify(todos, null, 2));
+            }
+        }
+    } catch {}
     console.log('Todo list stored at:', DATA_FILE);
 }
 
@@ -262,7 +286,25 @@ async function initDataFile() {
 app.get('/api/todos', async (req, res) => {
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
-        res.json(JSON.parse(data));
+        // Remove completed property from all todos before sending
+        let todos = {};
+        try {
+            todos = JSON.parse(data);
+        } catch {}
+        if (todos && typeof todos === 'object') {
+            Object.keys(todos).forEach(list => {
+                if (Array.isArray(todos[list])) {
+                    todos[list] = todos[list].map(todo => {
+                        if (todo && typeof todo === 'object' && 'completed' in todo) {
+                            const { completed, ...rest } = todo;
+                            return rest;
+                        }
+                        return todo;
+                    });
+                }
+            });
+        }
+        res.json(todos);
     } catch (error) {
         res.status(500).json({ error: 'Failed to read todos' });
     }
@@ -270,7 +312,22 @@ app.get('/api/todos', async (req, res) => {
 
 app.post('/api/todos', async (req, res) => {
     try {
-        await fs.writeFile(DATA_FILE, JSON.stringify(req.body, null, 2));
+        // Remove completed property from all todos before saving
+        let todos = req.body;
+        if (todos && typeof todos === 'object') {
+            Object.keys(todos).forEach(list => {
+                if (Array.isArray(todos[list])) {
+                    todos[list] = todos[list].map(todo => {
+                        if (todo && typeof todo === 'object' && 'completed' in todo) {
+                            const { completed, ...rest } = todo;
+                            return rest;
+                        }
+                        return todo;
+                    });
+                }
+            });
+        }
+        await fs.writeFile(DATA_FILE, JSON.stringify(todos, null, 2));
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Failed to save todos' });
@@ -283,4 +340,4 @@ initDataFile().then(() => {
         console.log(`DumbDo server running at http://localhost:${PORT}`);
         console.log('PIN protection:', PIN ? 'enabled' : 'disabled');
     });
-}); 
+});

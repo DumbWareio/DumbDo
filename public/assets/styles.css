@@ -160,8 +160,7 @@ input:focus {
 }
 
 .todo-item {
-    display: grid;
-    grid-template-columns: 30px 1fr auto;
+    display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
@@ -193,6 +192,14 @@ input:focus {
 .todo-item.completed span {
     text-decoration: line-through;
     opacity: 0.7;
+}
+
+.todo-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    word-break: break-word;
+    font-size: 1em;
+    margin-right: 0.5em;
 }
 
 .checkbox-wrapper {
@@ -238,6 +245,7 @@ input:focus {
 }
 
 .todo-item .edit-input {
+    flex: 1 1 auto;
     width: 100%;
     padding: 0.25rem;
     margin: 0;
@@ -247,6 +255,7 @@ input:focus {
     color: var(--text);
     font-size: inherit;
     font-family: inherit;
+    box-sizing: border-box;
 }
 
 .todo-item a {
@@ -776,4 +785,4 @@ input:focus {
         padding: 0.75rem;
         margin: -0.75rem;
     }
-} 
+}

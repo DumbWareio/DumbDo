@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">DumbDo - Stupidly Simple Todo List</title>
+    <title id="page-title">DumbBin - Stupidly Simple Pastebin</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="manifest" href="manifest.json">
     <script>
@@ -18,7 +18,7 @@
 <body>
     <div class="app">
         <header>
-            <h1 id="header-title">DumbDo</h1>
+            <h1 id="header-title">DumbBin</h1>
             <div class="list-controls">
                 <div class="list-selector-container">
                     <select id="listSelector" aria-label="Select todo list">
@@ -42,7 +42,7 @@
             </div>
             <button id="themeToggle" aria-label="Toggle theme">
                 <svg class="moon" viewBox="0 0 24 24">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"></path>
                 </svg>
                 <svg class="sun" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="5"></circle>
@@ -63,16 +63,12 @@
                 <input 
                     type="text" 
                     id="todoInput" 
-                    placeholder="What needs to be done?"
+                    placeholder="Paste whatever you want here..."
                     required
                 >
                 <div class="button-group">
                     <button type="submit">Add</button>
-                    <button type="button" id="clearCompleted" class="clear-btn" aria-label="Delete completed tasks">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                    </button>
+                    <!-- Remove clear completed button since there is no completed state -->
                 </div>
             </form>
 
@@ -86,4 +82,4 @@
 
     <script src="app.js" type="module"></script>
 </body>
-</html> 
+</html>
