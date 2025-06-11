@@ -1,7 +1,7 @@
 {
   "name": "dumbbin",
   "version": "1.0.0",
-  "description": "A stupidly simple todo list",
+  "description": "A stupidly simple pastebin",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
