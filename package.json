@@ -1,5 +1,5 @@
 {
-  "name": "dumbdo",
+  "name": "dumbbin",
   "version": "1.0.0",
   "description": "A stupidly simple todo list",
   "main": "server.js",

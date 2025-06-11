@@ -1,4 +1,4 @@
-# DumbDo
+# DumbBin
 
 A stupidly simple todo list application that just works. No complex database, no unnecessary features - just todos.
 
@@ -20,7 +20,7 @@ A stupidly simple todo list application that just works. No complex database, no
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | PORT | The port number the server will listen on | 3000 | No |
-| DUMBDO_PIN | PIN protection for accessing todos (4-10 digits) | - | No |
+| DUMBBIN_PIN | PIN protection for accessing todos (4-10 digits) | - | No |
 
 ## Quick Start
 
@@ -28,8 +28,8 @@ A stupidly simple todo list application that just works. No complex database, no
 
 1. Clone the repository
 ```bash
-git clone https://github.com/dumbwareio/dumbdo.git
-cd dumbdo
+git clone https://github.com/masoncfrancis/dumbbin.git
+cd dumbbin
 ```
 
 2. Install dependencies
@@ -48,30 +48,30 @@ npm start
 
 1. Pull from Docker Hub (recommended)
 ```bash
-docker pull dumbwareio/dumbdo:latest
-docker run -p 3000:3000 -v $(pwd)/data:/app/data dumbwareio/dumbdo:latest
+docker pull masoncfrancis/dumbbin:latest
+docker run -p 3000:3000 -v $(pwd)/data:/app/data masoncfrancis/dumbbin:latest
 ```
 
 2. Or build locally
 ```bash
-docker build -t dumbwareio/dumbdo .
-docker run -p 3000:3000 -v $(pwd)/data:/app/data dumbwareio/dumbdo
+docker build -t masoncfrancis/dumbbin .
+docker run -p 3000:3000 -v $(pwd)/data:/app/data masoncfrancis/dumbbin
 ```
 
 3. Docker Compose
 ```yaml
 services:
-  dumbdo:
-    image: dumbwareio/dumbdo:latest
-    container_name: dumbdo
+  dumbbin:
+    image: masoncfrancis/dumbbin:latest
+    container_name: dumbbin
     restart: unless-stopped
     ports:
-      - ${DUMBDO_PORT:-3000}:3000
+      - ${DUMBBIN_PORT:-3000}:3000
     volumes:
-      - ${DUMBDO_DATA_PATH:-./data}:/app/data
+      - ${DUMBBIN_DATA_PATH:-./data}:/app/data
     environment:
-      - DUMBDO_PIN=${DUMBDO_PIN-}
-      - DUMBDO_SITE_TITLE=DumbDo
+      - DUMBBIN_PIN=${DUMBBIN_PIN-}
+      - DUMBBIN_SITE_TITLE=DumbBin
       # (Optional) Restrict origins - ex: https://subdomain.domain.tld,https://auth.proxy.tld,http://internalip:port' (default is '*')
       # - ALLOWED_ORIGINS=http://localhost:3000
       # - NODE_ENV=development # default production (development allows all origins)
@@ -99,7 +99,7 @@ The application follows the "Dumb" design system principles:
 ### Project Structure
 
 ```
-dumbdo/
+dumbbin/
 ├── app.js          # Frontend JavaScript
 ├── index.html      # Main HTML file
 ├── server.js       # Node.js server

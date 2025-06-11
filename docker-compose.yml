@@ -1,15 +1,15 @@
 services:
-  dumbdo:
-    image: dumbwareio/dumbdo:latest
-    container_name: dumbdo
+  dumbbin:
+    image: masoncfrancis/dumbbin:latest
+    container_name: dumbbin
     restart: unless-stopped
     ports:
-      - ${DUMBDO_PORT:-3000}:3000
+      - ${DUMBBIN_PORT:-3000}:3000
     volumes:
-      - ${DUMBDO_DATA_PATH:-./data}:/app/data
+      - ${DUMBBIN_DATA_PATH:-./data}:/app/data
     environment:
-      - DUMBDO_PIN=${DUMBDO_PIN-}
-      - DUMBDO_SITE_TITLE=DumbDo
+      - DUMBBIN_PIN=${DUMBBIN_PIN-}
+      - DUMBBIN_SITE_TITLE=DumbBin
       # (Optional) Restrict origins - ex: https://subdomain.domain.tld,https://auth.proxy.tld,http://internalip:port' (default is '*')
       # - ALLOWED_ORIGINS=http://localhost:3000
       # - NODE_ENV=development # default production (development allows all origins)

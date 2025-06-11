@@ -12,8 +12,8 @@ const { generatePWAManifest } = require('./scripts/pwa-manifest-generator');
 
 // Environment variables
 const PORT = process.env.PORT || 3000;
-const PIN = process.env.DUMBDO_PIN;
-const SITE_TITLE = process.env.DUMBDO_SITE_TITLE || 'DumbDo';
+const PIN = process.env.DUMBBIN_PIN;
+const SITE_TITLE = process.env.DUMBBIN_SITE_TITLE || 'DumbBin';
 const MIN_PIN_LENGTH = 4;
 const MAX_PIN_LENGTH = 10;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -141,7 +141,7 @@ app.post('/api/verify-pin', (req, res) => {
             resetAttempts(ip);
             
             // Set secure cookie
-            res.cookie('DUMBDO_PIN', pin, {
+            res.cookie('DUMBBIN_PIN', pin, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict'
@@ -200,7 +200,7 @@ function isValidPin(providedPin) {
 
 // PIN validation middleware - everything after this requires PIN
 app.use((req, res, next) => {
-    const providedPin = req.cookies.DUMBDO_PIN || req.headers['x-pin'];
+    const providedPin = req.cookies.DUMBBIN_PIN || req.headers['x-pin'];
     
     if (isValidPin(providedPin)) {
         return next();
@@ -224,7 +224,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    const providedPin = req.cookies.DUMBDO_PIN || req.headers['x-pin'];
+    const providedPin = req.cookies.DUMBBIN_PIN || req.headers['x-pin'];
     
     if (isValidPin(providedPin)) {
         res.redirect('/');
@@ -337,7 +337,7 @@ app.post('/api/todos', async (req, res) => {
 // Initialize and start server
 initDataFile().then(() => {
     app.listen(PORT, () => {
-        console.log(`DumbDo server running at http://localhost:${PORT}`);
+        console.log(`DumbBin server running at http://localhost:${PORT}`);
         console.log('PIN protection:', PIN ? 'enabled' : 'disabled');
     });
 });
