@@ -279,7 +279,7 @@ async function initDataFile() {
             }
         }
     } catch {}
-    console.log('Todo list stored at:', DATA_FILE);
+    console.log('Pastebin stored at:', DATA_FILE);
 }
 
 // Protected API routes

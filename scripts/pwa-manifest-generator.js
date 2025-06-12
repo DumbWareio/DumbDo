@@ -33,7 +33,7 @@ function generatePWAManifest(siteTitle) {
   const pwaManifest = {
     name: siteTitle,
       short_name: siteTitle,
-      description: "A stupidly simple todo list",
+      description: "A stupidly simple pastebin",
       start_url: "/",
       display: "standalone",
       background_color: "#ffffff",

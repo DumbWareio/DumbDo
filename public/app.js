@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (confirm(`Are you sure you want to delete "${listId}" and all its tasks?`)) {
+        if (confirm(`Are you sure you want to delete "${listId}" and all its items?`)) {
             const oldTodos = { ...todos };
             try {
                 // Remove the list
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     todo.text = newText;
                     renderTodos();
                     saveTodos();
-                    toastManager.show('Task updated');
+                    toastManager.show('Item updated');
                 } else {
                     input.replaceWith(todoText);
                     todoText.innerHTML = originalText;
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.remove();
             todos[currentList] = todos[currentList].filter(t => t !== todo);
             saveTodos();
-            toastManager.show('Task deleted', 'error');
+            toastManager.show('Item deleted', 'error');
         });
 
         // Drag and drop event listeners
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTodos();
             saveTodos();
             todoInput.value = '';
-            toastManager.show('Task added');
+            toastManager.show('Item added');
         }
     });
 
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(config.error);
                 }
 
-                document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Todo List`;
+                document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Pastebin`;
                 document.getElementById('header-title').textContent = config.siteTitle;
                 
                 loadTodos();       
