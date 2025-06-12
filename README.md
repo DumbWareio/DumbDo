@@ -113,4 +113,4 @@ This is meant to be a simple application. If you're writing complex code to solv
 
 The project on which this one is based ([DumbDo](https://github.com/DumbWareio/DumbDo)) is licensed under the GPL-3.0 License. This project is a derivative work and is also licensed under the GPL-3.0 License.
 
-Modifications to the original code are made to change the use of the application from a todo list to a pastebin. As such, references to "todo" have been replaced with "item" or "items" throughout the codebase. Some branding has been changed to "DumbBin" instead of "DumbDo". Also, a copy to clipboard button has been added to the item view.
+Modifications to the original code are made to change the use of the application from a todo list to a pastebin. As such, references to "todo" have been replaced with "item" or "items" throughout the codebase. Some branding has been changed to "DumbBin" instead of "DumbDo". Also, a copy to clipboard button has been added to the item view. The Docker image has also been updated to use Node 22. 
