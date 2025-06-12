@@ -1,6 +1,6 @@
 # DumbBin
 
-A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just items.
+A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just stuff you paste in there.
 
 ![image](https://github.com/user-attachments/assets/a7857b13-db10-430f-af20-aedbf0d26023)
 
@@ -46,23 +46,20 @@ npm start
 
 ### Using Docker
 
-1. Pull from Docker Hub (recommended)
-```bash
-docker pull masoncfrancis/dumbbin:latest
-docker run -p 3000:3000 -v $(pwd)/data:/app/data masoncfrancis/dumbbin:latest
-```
 
-2. Or build locally
+2. Build locally
 ```bash
-docker build -t masoncfrancis/dumbbin .
-docker run -p 3000:3000 -v $(pwd)/data:/app/data masoncfrancis/dumbbin
+docker build -t dumbbin .
+docker run -p 3000:3000 -v $(pwd)/data:/app/data dumbbin
 ```
 
 3. Docker Compose
 ```yaml
 services:
   dumbbin:
-    image: masoncfrancis/dumbbin:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: dumbbin
     restart: unless-stopped
     ports:
@@ -109,12 +106,6 @@ dumbbin/
 ├── Dockerfile     # Docker configuration
 └── package.json   # Dependencies and scripts
 ```
-
-## Support the Project
-
-<a href="https://www.buymeacoffee.com/dumbware" target="_blank">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60">
-</a>
 
 ## Contributing
 
