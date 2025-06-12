@@ -45,13 +45,13 @@ npm start
 ### Using Docker
 
 
-2. Build locally
+1. Build locally
 ```bash
 docker build -t dumbbin .
 docker run -p 3000:3000 -v $(pwd)/data:/app/data dumbbin
 ```
 
-3. Docker Compose
+2. Docker Compose
 ```yaml
 services:
   dumbbin:
