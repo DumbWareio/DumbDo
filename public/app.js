@@ -329,32 +329,33 @@ document.addEventListener('DOMContentLoaded', () => {
         // Make text editable on click
         itemText.addEventListener('click', (e) => {
             if (e.target.tagName === 'A') return;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = item.text;
-            input.className = 'edit-input';
+            const textarea = document.createElement('textarea');
+            textarea.value = item.text;
+            textarea.className = 'edit-input';
+            textarea.rows = Math.max(2, item.text.split('\n').length);
             const originalText = itemText.innerHTML;
-            itemText.replaceWith(input);
-            input.focus();
+            itemText.replaceWith(textarea);
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
             function saveEdit() {
-                const newText = input.value.trim();
+                const newText = textarea.value.trim();
                 if (newText && newText !== item.text) {
                     item.text = newText;
                     renderItems();
                     saveItems();
                     toastManager.show('Item updated');
                 } else {
-                    input.replaceWith(itemText);
+                    textarea.replaceWith(itemText);
                     itemText.innerHTML = originalText;
                 }
             }
-            input.addEventListener('blur', saveEdit);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+            textarea.addEventListener('blur', saveEdit);
+            textarea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     saveEdit();
                 } else if (e.key === 'Escape') {
-                    input.replaceWith(itemText);
+                    textarea.replaceWith(itemText);
                     itemText.innerHTML = originalText;
                 }
             });

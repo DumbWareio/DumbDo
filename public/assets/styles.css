@@ -132,6 +132,11 @@ button:hover {
     gap: 0.5rem;
     margin-bottom: 2rem;
     justify-content: center;
+    max-width: 500px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: stretch;
 }
 
 input {
@@ -157,6 +162,9 @@ input:focus {
     gap: 0.5rem;
     align-items: center;
     width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .item-item {
@@ -172,6 +180,7 @@ input:focus {
     max-width: 500px;
     cursor: default;
     position: relative;
+    box-sizing: border-box;
 }
 
 .item-item:not(.completed) {
@@ -200,6 +209,7 @@ input:focus {
     word-break: break-word;
     font-size: 1em;
     margin-right: 0.5em;
+    white-space: pre-line;
 }
 
 .checkbox-wrapper {
@@ -247,6 +257,9 @@ input:focus {
 .item-item .edit-input {
     flex: 1 1 auto;
     width: 100%;
+    min-height: 2.5em;
+    resize: vertical;
+    white-space: pre-line;
     padding: 0.25rem;
     margin: 0;
     border: 1px solid var(--primary);
@@ -679,6 +692,21 @@ input:focus {
         position: static;
         margin-left: auto;
     }
+
+    .item-form,
+    .item-list,
+    .item-item,
+    textarea#itemInput {
+        max-width: 100%;
+    }
+    .button-group {
+        flex-direction: row;
+        width: 100%;
+    }
+    .button-group button[type="submit"] {
+        width: 100%;
+        min-width: 0;
+    }
 }
 
 /* Login Page Styles */
@@ -815,4 +843,44 @@ input:focus {
         padding: 0.75rem;
         margin: -0.75rem;
     }
+}
+
+textarea#itemInput {
+    width: 100%;
+    min-height: 2.5em;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--container);
+    color: var(--text);
+    transition: border-color var(--transition);
+    box-sizing: border-box;
+    max-width: 500px;
+    /* Ensure it fills the height of the form */
+    display: block;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.button-group button[type="submit"] {
+    height: 100%;
+    min-height: 2.5em;
+    font-size: 1em;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    border-radius: 8px;
+    box-sizing: border-box;
+    align-self: stretch;
+    /* Make sure it matches the textarea height visually */
 }
