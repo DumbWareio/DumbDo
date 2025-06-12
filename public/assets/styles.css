@@ -127,7 +127,7 @@ button:hover {
     background: rgba(255,68,68,0.1);
 }
 
-.todo-form {
+.item-form {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 2rem;
@@ -150,7 +150,7 @@ input:focus {
     border-color: var(--primary);
 }
 
-.todo-list {
+.item-list {
     list-style: none;
     display: flex;
     flex-direction: column;
@@ -159,7 +159,7 @@ input:focus {
     width: 100%;
 }
 
-.todo-item {
+.item-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -174,27 +174,27 @@ input:focus {
     position: relative;
 }
 
-.todo-item:not(.completed) {
+.item-item:not(.completed) {
     cursor: grab;
 }
 
-.todo-item.dragging {
+.item-item.dragging {
     cursor: grabbing;
     opacity: 0.9;
     box-shadow: var(--shadow), 0 8px 16px rgba(0,0,0,0.1);
     transform: scale(1.02) translateY(-2px);
 }
 
-.todo-item:not(.completed):hover {
+.item-item:not(.completed):hover {
     transform: translateY(-2px);
 }
 
-.todo-item.completed span {
+.item-item.completed span {
     text-decoration: line-through;
     opacity: 0.7;
 }
 
-.todo-text {
+.item-text {
     flex: 1 1 auto;
     min-width: 0;
     word-break: break-word;
@@ -214,7 +214,7 @@ input:focus {
     margin: -0.5rem;
 }
 
-.todo-item input[type="checkbox"] {
+.item-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
     margin: 0;
@@ -224,7 +224,7 @@ input:focus {
     z-index: 1;
 }
 
-.todo-item span {
+.item-item span {
     overflow-wrap: break-word;
     word-break: break-word;
     min-width: 0;
@@ -236,15 +236,15 @@ input:focus {
     transition: background-color var(--transition);
 }
 
-.todo-item span:hover {
+.item-item span:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] .todo-item span:hover {
+[data-theme="dark"] .item-item span:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.todo-item .edit-input {
+.item-item .edit-input {
     flex: 1 1 auto;
     width: 100%;
     padding: 0.25rem;
@@ -258,18 +258,18 @@ input:focus {
     box-sizing: border-box;
 }
 
-.todo-item a {
+.item-item a {
     color: var(--primary);
     text-decoration: none;
     transition: opacity var(--transition);
 }
 
-.todo-item a:hover {
+.item-item a:hover {
     opacity: 0.8;
     text-decoration: underline;
 }
 
-.todo-item.completed a {
+.item-item.completed a {
     opacity: 0.7;
     text-decoration: line-through;
 }
@@ -339,7 +339,7 @@ input:focus {
 }
 
 
-.todo-divider {
+.item-divider {
     width: 100%;
     max-width: 500px;
     text-align: left;
@@ -360,7 +360,7 @@ input:focus {
         font-size: 1.5rem;
     }
     
-    .todo-form {
+    .item-form {
         flex-direction: column;
         align-items: center;
     }
@@ -749,7 +749,7 @@ input:focus {
     display: block;
 }
 
-.active-todos {
+.active-items {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -758,7 +758,7 @@ input:focus {
 }
 
 /* Add a visual indicator for drop target */
-.todo-item:not(.completed):not(.dragging)::after {
+.item-item:not(.completed):not(.dragging)::after {
     content: '';
     position: absolute;
     left: 0;
@@ -769,12 +769,12 @@ input:focus {
     transition: opacity var(--transition);
 }
 
-.todo-item:not(.completed):not(.dragging).drop-above::after {
+.item-item:not(.completed):not(.dragging).drop-above::after {
     top: -1px;
     opacity: 1;
 }
 
-.todo-item:not(.completed):not(.dragging).drop-below::after {
+.item-item:not(.completed):not(.dragging).drop-below::after {
     bottom: -1px;
     opacity: 1;
 }

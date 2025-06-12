@@ -239,7 +239,7 @@ app.use(express.static('.'));
 
 // Data directory and file path
 const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'todos.json');
+const DATA_FILE = path.join(DATA_DIR, 'items.json');
 
 // Ensure the data directory and file exist
 async function initDataFile() {
@@ -253,29 +253,29 @@ async function initDataFile() {
     } catch {
         await fs.writeFile(DATA_FILE, JSON.stringify({}));
     }
-    // Remove completed property from all todos if present
+    // Remove completed property from all items if present
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
-        let todos = {};
+        let items = {};
         try {
-            todos = JSON.parse(data);
+            items = JSON.parse(data);
         } catch {}
-        if (todos && typeof todos === 'object') {
+        if (items && typeof items === 'object') {
             let changed = false;
-            Object.keys(todos).forEach(list => {
-                if (Array.isArray(todos[list])) {
-                    todos[list] = todos[list].map(todo => {
-                        if (todo && typeof todo === 'object' && 'completed' in todo) {
+            Object.keys(items).forEach(list => {
+                if (Array.isArray(items[list])) {
+                    items[list] = items[list].map(item => {
+                        if (item && typeof item === 'object' && 'completed' in item) {
                             changed = true;
-                            const { completed, ...rest } = todo;
+                            const { completed, ...rest } = item;
                             return rest;
                         }
-                        return todo;
+                        return item;
                     });
                 }
             });
             if (changed) {
-                await fs.writeFile(DATA_FILE, JSON.stringify(todos, null, 2));
+                await fs.writeFile(DATA_FILE, JSON.stringify(items, null, 2));
             }
         }
     } catch {}
@@ -283,54 +283,54 @@ async function initDataFile() {
 }
 
 // Protected API routes
-app.get('/api/todos', async (req, res) => {
+app.get('/api/items', async (req, res) => {
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
-        // Remove completed property from all todos before sending
-        let todos = {};
+        // Remove completed property from all items before sending
+        let items = {};
         try {
-            todos = JSON.parse(data);
+            items = JSON.parse(data);
         } catch {}
-        if (todos && typeof todos === 'object') {
-            Object.keys(todos).forEach(list => {
-                if (Array.isArray(todos[list])) {
-                    todos[list] = todos[list].map(todo => {
-                        if (todo && typeof todo === 'object' && 'completed' in todo) {
-                            const { completed, ...rest } = todo;
+        if (items && typeof items === 'object') {
+            Object.keys(items).forEach(list => {
+                if (Array.isArray(items[list])) {
+                    items[list] = items[list].map(item => {
+                        if (item && typeof item === 'object' && 'completed' in item) {
+                            const { completed, ...rest } = item;
                             return rest;
                         }
-                        return todo;
+                        return item;
                     });
                 }
             });
         }
-        res.json(todos);
+        res.json(items);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to read todos' });
+        res.status(500).json({ error: 'Failed to read items' });
     }
 });
 
-app.post('/api/todos', async (req, res) => {
+app.post('/api/items', async (req, res) => {
     try {
-        // Remove completed property from all todos before saving
-        let todos = req.body;
-        if (todos && typeof todos === 'object') {
-            Object.keys(todos).forEach(list => {
-                if (Array.isArray(todos[list])) {
-                    todos[list] = todos[list].map(todo => {
-                        if (todo && typeof todo === 'object' && 'completed' in todo) {
-                            const { completed, ...rest } = todo;
+        // Remove completed property from all items before saving
+        let items = req.body;
+        if (items && typeof items === 'object') {
+            Object.keys(items).forEach(list => {
+                if (Array.isArray(items[list])) {
+                    items[list] = items[list].map(item => {
+                        if (item && typeof item === 'object' && 'completed' in item) {
+                            const { completed, ...rest } = item;
                             return rest;
                         }
-                        return todo;
+                        return item;
                     });
                 }
             });
         }
-        await fs.writeFile(DATA_FILE, JSON.stringify(todos, null, 2));
+        await fs.writeFile(DATA_FILE, JSON.stringify(items, null, 2));
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to save todos' });
+        res.status(500).json({ error: 'Failed to save items' });
     }
 });
 

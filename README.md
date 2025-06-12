@@ -1,6 +1,6 @@
 # DumbBin
 
-A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just todos.
+A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just items.
 
 ![image](https://github.com/user-attachments/assets/a7857b13-db10-430f-af20-aedbf0d26023)
 
@@ -9,7 +9,7 @@ A stupidly simple pastebin application that just works. No complex database, no 
 
 - ✨ Clean, minimal interface
 - 🌓 Dark/Light mode with system preference detection
-- 💾 File-based storage - todos persist between sessions
+- 💾 File-based storage - items persist between sessions
 - 📱 Fully responsive design
 - 🚀 Fast and lightweight
 - 🔒 PIN protection (4-10 digits if enabled)
@@ -20,7 +20,7 @@ A stupidly simple pastebin application that just works. No complex database, no 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | PORT | The port number the server will listen on | 3000 | No |
-| DUMBBIN_PIN | PIN protection for accessing todos (4-10 digits) | - | No |
+| DUMBBIN_PIN | PIN protection for accessing items (4-10 digits) | - | No |
 
 ## Quick Start
 
@@ -84,9 +84,9 @@ services:
 ```
 ## Storage
 
-Todos are stored in a JSON file at `app/data/todos.json`. The file is automatically created when you first run the application. 
+Items are stored in a JSON file at `app/data/items.json`. The file is automatically created when you first run the application. 
 
-To backup your todos, simply copy the `data` directory. To restore, place your backup `todos.json` in the `data` directory.
+To backup your items, simply copy the `data` directory. To restore, place your backup `items.json` in the `data` directory.
 
 ## Development
 
@@ -104,8 +104,8 @@ dumbbin/
 ├── index.html      # Main HTML file
 ├── server.js       # Node.js server
 ├── styles.css      # CSS styles
-├── data/          # Todo storage directory
-│   └── todos.json
+├── data/          # Item storage directory
+│   └── items.json
 ├── Dockerfile     # Docker configuration
 └── package.json   # Dependencies and scripts
 ```

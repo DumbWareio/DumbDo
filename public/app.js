@@ -3,9 +3,9 @@ import { ToastManager } from './managers/toast.js'
 
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
-    const todoForm = document.getElementById('todoForm');
-    const todoInput = document.getElementById('todoInput');
-    const todoList = document.getElementById('todoList');
+    const itemForm = document.getElementById('itemForm');
+    const itemInput = document.getElementById('itemInput');
+    const itemList = document.getElementById('itemList');
     const themeToggle = document.getElementById('themeToggle');
     const moonIcon = themeToggle.querySelector('.moon');
     const sunIcon = themeToggle.querySelector('.sun');
@@ -63,14 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // State
-    let todos = {};
+    let items = {};
     let currentList = 'List 1';
 
     // List Management
     function initializeLists(data) {
         if (!data || Object.keys(data).length === 0) {
             // Only create List 1 when there are no lists at all
-            todos = { 'List 1': [] };
+            items = { 'List 1': [] };
             currentList = 'List 1';
         } else {
             // Convert only numeric keys, preserve custom names
@@ -85,17 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             
-            todos = convertedData;
+            items = convertedData;
             currentList = Object.keys(convertedData)[0];
         }
         
         updateListSelector();
-        renderTodos();
+        renderItems();
     }
 
     function updateListSelector() {
         // Sort the list keys to ensure List 1 comes first
-        const sortedKeys = Object.keys(todos).sort((a, b) => {
+        const sortedKeys = Object.keys(items).sort((a, b) => {
             if (a === 'List 1') return -1;
             if (b === 'List 1') return 1;
             return a.localeCompare(b);
@@ -162,41 +162,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function switchList(listId) {
         currentList = listId;
         listSelector.value = listId; // Update the native select value
-        renderTodos();
+        renderItems();
     }
 
     function addNewList() {
-        const listCount = Object.keys(todos).length + 1;
+        const listCount = Object.keys(items).length + 1;
         const newListId = `List ${listCount}`;
-        todos[newListId] = [];
+        items[newListId] = [];
         currentList = newListId;
         updateListSelector();
-        renderTodos();
-        saveTodos();
+        renderItems();
+        saveItems();
         toastManager.show('New list added');
     }
 
     async function renameCurrentList() {
         const newName = prompt('Enter new list name:', currentList);
-        if (newName && newName.trim() && newName !== currentList && !todos[newName]) {
+        if (newName && newName.trim() && newName !== currentList && !items[newName]) {
             const oldName = currentList;
-            const oldTodos = { ...todos };  // Keep a full backup
+            const oldItems = { ...items };  // Keep a full backup
             
             try {
                 // Update the data structure
-                todos[newName] = todos[currentList];
-                delete todos[currentList];
+                items[newName] = items[currentList];
+                delete items[currentList];
                 currentList = newName;
                 
                 // Update UI
                 updateListSelector();
                 
                 // Save changes
-                await saveTodos();
+                await saveItems();
                 toastManager.show('List renamed');
             } catch (error) {
                 // Revert all changes on failure
-                todos = oldTodos;
+                items = oldItems;
                 currentList = oldName;
                 updateListSelector();
                 toastManager.show('Failed to save list name change', 'error', false, 5000);
@@ -206,34 +206,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteList(listId) {
         // Don't allow deleting the last list or List 1
-        if (Object.keys(todos).length <= 1 || listId === 'List 1') {
+        if (Object.keys(items).length <= 1 || listId === 'List 1') {
             toastManager.show('Cannot delete this list', 'error');
             return;
         }
 
         if (confirm(`Are you sure you want to delete "${listId}" and all its items?`)) {
-            const oldTodos = { ...todos };
+            const oldItems = { ...items };
             try {
                 // Remove the list
-                delete todos[listId];
+                delete items[listId];
                 
                 // If we're deleting the current list, switch to another one
                 if (listId === currentList) {
-                    currentList = Object.keys(todos)[0];
+                    currentList = Object.keys(items)[0];
                 }
                 
                 // Update UI
                 updateListSelector();
-                renderTodos();
+                renderItems();
                 
                 // Save changes
-                await saveTodos();
+                await saveItems();
                 toastManager.show('List deleted');
             } catch (error) {
                 // Revert changes on failure
-                todos = oldTodos;
+                items = oldItems;
                 updateListSelector();
-                renderTodos();
+                renderItems();
                 toastManager.show('Failed to delete list', 'error', false, 5000);
             }
         }
@@ -270,72 +270,72 @@ document.addEventListener('DOMContentLoaded', () => {
         updateThemeIcons();
     });
 
-    // Todo Management
-    async function loadTodos() {
+    // Item Management
+    async function loadItems() {
         try {
-            const response = await fetchWithAuth('/api/todos');
-            if (!response.ok) throw new Error('Failed to load todos');
+            const response = await fetchWithAuth('/api/items');
+            if (!response.ok) throw new Error('Failed to load items');
             const data = await response.json();
             initializeLists(data);
             initializeDropdown(); // Initialize dropdown after data is loaded
         } catch (error) {
-            toastManager.show('Failed to load todos', 'error', true);
+            toastManager.show('Failed to load items', 'error', true);
             console.error(error);
         }
     }
 
-    async function saveTodos() {
+    async function saveItems() {
         try {
-            const response = await fetchWithAuth('/api/todos', {
+            const response = await fetchWithAuth('/api/items', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(todos)
+                body: JSON.stringify(items)
             });
-            if (!response.ok) throw new Error('Failed to save todos');
+            if (!response.ok) throw new Error('Failed to save items');
             return true;
         } catch (error) {
-            toastManager.show('Failed to save todos', 'error');
+            toastManager.show('Failed to save items', 'error');
             console.error(error);
             throw error;  // Re-throw to handle in calling function
         }
     }
 
-    function createTodoElement(todo) {
+    function createItemElement(item) {
         const li = document.createElement('li');
-        li.className = 'todo-item';
+        li.className = 'item-item';
         li.draggable = true;
-        li.setAttribute('data-todo-id', todo.text); // Using text as a simple identifier
+        li.setAttribute('data-item-id', item.text); // Using text as a simple identifier
 
         // Remove the old checkbox-wrapper and just show the text and delete button
         li.innerHTML = `
-            <span class="todo-text">${linkifyText(todo.text)}</span>
-            <button class="delete-btn" aria-label="Delete todo">×</button>
+            <span class="item-text">${linkifyText(item.text)}</span>
+            <button class="delete-btn" aria-label="Delete item">×</button>
         `;
 
-        const todoText = li.querySelector('.todo-text');
+        const itemText = li.querySelector('.item-text');
 
         // Make text editable on click
-        todoText.addEventListener('click', (e) => {
+        itemText.addEventListener('click', (e) => {
             if (e.target.tagName === 'A') return;
             const input = document.createElement('input');
             input.type = 'text';
-            input.value = todo.text;
+            input.value = item.text;
             input.className = 'edit-input';
-            const originalText = todoText.innerHTML;
-            todoText.replaceWith(input);
+            const originalText = itemText.innerHTML;
+            itemText.replaceWith(input);
             input.focus();
             function saveEdit() {
                 const newText = input.value.trim();
-                if (newText && newText !== todo.text) {
-                    todo.text = newText;
-                    renderTodos();
-                    saveTodos();
+                if (newText && newText !== item.text) {
+                    item.text = newText;
+                    renderItems();
+                    saveItems();
                     toastManager.show('Item updated');
                 } else {
-                    input.replaceWith(todoText);
-                    todoText.innerHTML = originalText;
+                    input.replaceWith(itemText);
+                    itemText.innerHTML = originalText;
                 }
             }
             input.addEventListener('blur', saveEdit);
@@ -344,8 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.preventDefault();
                     saveEdit();
                 } else if (e.key === 'Escape') {
-                    input.replaceWith(todoText);
-                    todoText.innerHTML = originalText;
+                    input.replaceWith(itemText);
+                    itemText.innerHTML = originalText;
                 }
             });
         });
@@ -353,14 +353,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = li.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', () => {
             li.remove();
-            todos[currentList] = todos[currentList].filter(t => t !== todo);
-            saveTodos();
+            items[currentList] = items[currentList].filter(t => t !== item);
+            saveItems();
             toastManager.show('Item deleted', 'error');
         });
 
         // Drag and drop event listeners
         li.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', todo.text);
+            e.dataTransfer.setData('text/plain', item.text);
             li.classList.add('dragging');
             const dragImage = li.cloneNode(true);
             dragImage.style.position = 'absolute';
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const draggingItem = document.querySelector('.dragging');
             if (draggingItem && !li.classList.contains('dragging')) {
-                const items = [...todoList.querySelectorAll('.todo-item')];
+                const items = [...itemList.querySelectorAll('.item-item')];
                 const currentPos = items.indexOf(draggingItem);
                 const newPos = items.indexOf(li);
                 if (currentPos !== newPos) {
@@ -388,12 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         li.parentNode.insertBefore(draggingItem, li.nextSibling);
                     }
-                    // Update the todos array to match the new order
-                    const newOrder = [...document.querySelectorAll('.todo-item')].map(item => {
-                        return todos[currentList].find(t => t.text === item.getAttribute('data-todo-id'));
+                    // Update the items array to match the new order
+                    const newOrder = [...document.querySelectorAll('.item-item')].map(item => {
+                        return items[currentList].find(t => t.text === item.getAttribute('data-item-id'));
                     });
-                    todos[currentList] = newOrder;
-                    saveTodos();
+                    items[currentList] = newOrder;
+                    saveItems();
                 }
             }
         });
@@ -410,28 +410,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderTodos() {
-        todoList.innerHTML = '';
-        const currentTodos = todos[currentList] || [];
-        currentTodos.forEach(todo => {
-            todoList.appendChild(createTodoElement(todo));
+    function renderItems() {
+        itemList.innerHTML = '';
+        const currentItems = items[currentList] || [];
+        currentItems.forEach(item => {
+            itemList.appendChild(createItemElement(item));
         });
     }
 
     // Event Listeners
-    todoForm.addEventListener('submit', (e) => {
+    itemForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const text = todoInput.value.trim();
+        const text = itemInput.value.trim();
         if (text) {
             // Ensure the current list exists before pushing
-            if (!todos[currentList]) {
-                todos[currentList] = [];
+            if (!items[currentList]) {
+                items[currentList] = [];
             }
-            const todo = { text };
-            todos[currentList].push(todo);
-            renderTodos();
-            saveTodos();
-            todoInput.value = '';
+            const item = { text };
+            items[currentList].push(item);
+            renderItems();
+            saveItems();
+            itemInput.value = '';
             toastManager.show('Item added');
         }
     });
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Pastebin`;
                 document.getElementById('header-title').textContent = config.siteTitle;
                 
-                loadTodos();       
+                loadItems();       
             })
             .catch(err => {
                 console.error('Error loading site config:', err);
