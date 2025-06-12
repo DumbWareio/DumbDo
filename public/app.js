@@ -311,10 +311,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove the old checkbox-wrapper and just show the text and delete button
         li.innerHTML = `
             <span class="item-text">${linkifyText(item.text)}</span>
+            <button class="copy-btn" aria-label="Copy item text" title="Copy to clipboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
             <button class="delete-btn" aria-label="Delete item">×</button>
         `;
 
         const itemText = li.querySelector('.item-text');
+        const copyBtn = li.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(item.text)
+                .then(() => toastManager.show('Copied to clipboard'))
+                .catch(() => toastManager.show('Failed to copy', 'error'));
+        });
 
         // Make text editable on click
         itemText.addEventListener('click', (e) => {

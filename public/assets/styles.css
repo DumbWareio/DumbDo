@@ -287,6 +287,36 @@ input:focus {
     background: rgba(255,68,68,0.1);
 }
 
+.copy-btn {
+    background: transparent;
+    color: var(--primary);
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition);
+    height: 2em;
+    min-width: 2em;
+}
+
+.copy-btn:hover {
+    background: rgba(33, 150, 243, 0.1);
+    border-color: var(--primary-hover);
+}
+
+.copy-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--primary);
+    stroke-width: 2;
+    fill: none;
+}
+
 /* .toast-container {
     position: fixed;
     bottom: 2rem;
