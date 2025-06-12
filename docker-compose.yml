@@ -1,6 +1,8 @@
 services:
   dumbbin:
-    image: masoncfrancis/dumbbin:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: dumbbin
     restart: unless-stopped
     ports:
