@@ -2,8 +2,6 @@
 
 A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just stuff you paste in there.
 
-![image](https://github.com/user-attachments/assets/a7857b13-db10-430f-af20-aedbf0d26023)
-
 
 ## Features
 
