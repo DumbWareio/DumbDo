@@ -187,6 +187,10 @@ input:focus {
     box-sizing: border-box;
 }
 
+.item-item.long-text {
+    align-items: flex-start;
+}
+
 .item-item:not(.completed) {
     cursor: grab;
 }

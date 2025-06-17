@@ -326,6 +326,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="delete-btn" aria-label="Delete item">×</button>
         `;
 
+        // Add .long-text class if text is more than 3 lines
+        const lineCount = (item.text.match(/\n/g) || []).length + 1;
+        if (lineCount > 1) {
+            li.classList.add('long-text');
+        }
+
         const itemText = li.querySelector('.item-text');
         const copyBtn = li.querySelector('.copy-btn');
         copyBtn.addEventListener('click', (e) => {
