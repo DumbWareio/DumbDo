@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         copyBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             navigator.clipboard.writeText(item.text)
-                .then(() => toastManager.show('Copied to clipboard'))
+                .then(() => toastManager.show('Link copied to clipboard'))
                 .catch(() => toastManager.show('Failed to copy', 'error'));
         });
 
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveItems();
                 // Copy link to clipboard
                 navigator.clipboard.writeText(getShareLink())
-                    .then(() => toastManager.show('Sharing enabled and link copied!'))
+                    .then(() => toastManager.show('Link copied to clipboard'))
                     .catch(() => toastManager.show('Sharing enabled, but failed to copy link', 'error'));
             } else {
                 // Show modal instead of dropdown
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Copy link button
         modal.querySelector('.share-modal-copy-btn').onclick = () => {
             navigator.clipboard.writeText(shareLink)
-                .then(() => toastManager.show('Link copied!'))
+                .then(() => toastManager.show('Link copied to clipboard'))
                 .catch(() => toastManager.show('Failed to copy link', 'error'));
         };
         // Disable sharing button
