@@ -185,6 +185,7 @@ input:focus {
     cursor: default;
     position: relative;
     box-sizing: border-box;
+    z-index: 1; /* default stacking context for list items */
 }
 
 .item-item.long-text {
@@ -359,6 +360,51 @@ input:focus {
 
 .share-btn:hover svg {
     stroke: var(--share-btn-hover);
+}
+
+.share-btn.shared-active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.share-btn.shared-active svg {
+    stroke: #fff;
+}
+
+.share-dropdown {
+    background: var(--container);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    min-width: 140px;
+    padding: 0.25rem 0;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 10000 !important; /* ensure dropdown is always above .item-item and its children */
+    left: 0;
+    top: 100%;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    color: var(--text);
+    text-align: left;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 0;
+    transition: background var(--transition);
+    width: 100%;
+    display: block;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.dropdown-item:hover {
+    background: rgba(33, 150, 243, 0.08);
 }
 
 /* .toast-container {

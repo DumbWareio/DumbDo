@@ -308,21 +308,17 @@ document.addEventListener('DOMContentLoaded', () => {
         li.draggable = true;
         li.setAttribute('data-item-id', item.text); // Using text as a simple identifier
 
+        // Ensure item.shared property exists (default: false)
+        if (typeof item.shared !== 'boolean') item.shared = false;
+
         // Remove the old checkbox-wrapper and just show the text and delete button
         li.innerHTML = `
             <span class="item-text">${linkifyText(item.text)}</span>
             <button class="copy-btn" aria-label="Copy item text" title="Copy to clipboard">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
-            <button class="share-btn" aria-label="Share item" title="Share">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3"></circle>
-                    <circle cx="6" cy="12" r="3"></circle>
-                    <circle cx="18" cy="19" r="3"></circle>
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                </svg>
-            </button>
+            <button class="share-btn${item.shared ? ' shared-active' : ''}" aria-label="${item.shared ? 'Disable' : 'Enable'} sharing for item" title="${item.shared ? 'Sharing enabled' : 'Enable sharing'}"></button>
+            <div class="share-dropdown" style="display:none;position:absolute;z-index:10;"></div>
             <button class="delete-btn" aria-label="Delete item">×</button>
         `;
 
@@ -339,6 +335,75 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard.writeText(item.text)
                 .then(() => toastManager.show('Copied to clipboard'))
                 .catch(() => toastManager.show('Failed to copy', 'error'));
+        });
+
+        // Share logic
+        const shareBtn = li.querySelector('.share-btn');
+        const shareDropdown = li.querySelector('.share-dropdown');
+        // Add SVG to shareBtn
+        shareBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+        `;
+        function getShareLink() {
+            // This is a placeholder. Replace with your real share link logic if needed.
+            return window.location.origin + '/share/' + encodeURIComponent(item.text);
+        }
+        shareBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!item.shared) {
+                item.shared = true;
+                shareBtn.classList.add('shared-active');
+                shareBtn.setAttribute('aria-label', 'Disable sharing for item');
+                shareBtn.setAttribute('title', 'Sharing enabled');
+                saveItems();
+                // Copy link to clipboard
+                navigator.clipboard.writeText(getShareLink())
+                    .then(() => toastManager.show('Sharing enabled and link copied!'))
+                    .catch(() => toastManager.show('Sharing enabled, but failed to copy link', 'error'));
+            } else {
+                // Show dropdown
+                shareDropdown.innerHTML = `
+                    <button class="dropdown-item copy-link">Copy Link</button>
+                    <button class="dropdown-item disable-share">Disable Sharing</button>
+                `;
+                shareDropdown.style.display = 'block';
+                // Position dropdown below the button
+                const rect = shareBtn.getBoundingClientRect();
+                shareDropdown.style.left = shareBtn.offsetLeft + 'px';
+                shareDropdown.style.top = (shareBtn.offsetTop + shareBtn.offsetHeight) + 'px';
+                // Copy Link
+                shareDropdown.querySelector('.copy-link').onclick = (ev) => {
+                    ev.stopPropagation();
+                    navigator.clipboard.writeText(getShareLink())
+                        .then(() => toastManager.show('Link copied!'))
+                        .catch(() => toastManager.show('Failed to copy link', 'error'));
+                    shareDropdown.style.display = 'none';
+                };
+                // Disable Sharing
+                shareDropdown.querySelector('.disable-share').onclick = (ev) => {
+                    ev.stopPropagation();
+                    item.shared = false;
+                    shareBtn.classList.remove('shared-active');
+                    shareBtn.setAttribute('aria-label', 'Enable sharing for item');
+                    shareBtn.setAttribute('title', 'Enable sharing');
+                    saveItems();
+                    toastManager.show('Sharing disabled for this item');
+                    shareDropdown.style.display = 'none';
+                };
+                // Hide dropdown on outside click
+                document.addEventListener('click', function hideDropdown(ev) {
+                    if (!li.contains(ev.target)) {
+                        shareDropdown.style.display = 'none';
+                        document.removeEventListener('click', hideDropdown);
+                    }
+                });
+            }
         });
 
         // Make text editable on click

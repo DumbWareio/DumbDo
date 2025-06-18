@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Item - DumbBin</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="assets/styles.css">
+    <script>
+        // Prevent theme flicker by setting theme immediately
+        (function() {
+            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1 id="header-title">DumbBin</h1>
+            <button id="themeToggle" aria-label="Toggle theme">
+                <svg class="moon" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 A7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </header>
+        <main>
+            <div id="shared-item-container" class="item-list">
+                <!-- Shared item will be rendered here -->
+            </div>
+        </main>
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+    <script type="module">
+        // Theme toggle logic
+        const themeToggle = document.getElementById('themeToggle');
+        const moonIcon = themeToggle.querySelector('.moon');
+        const sunIcon = themeToggle.querySelector('.sun');
+        function updateThemeIcons() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            moonIcon.style.display = isDark ? 'none' : 'block';
+            sunIcon.style.display = isDark ? 'block' : 'none';
+        }
+        updateThemeIcons();
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcons();
+        });
+
+        // Helper to get query param
+        function getQueryParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+
+        // Helper to linkify URLs
+        function linkifyText(text) {
+            const urlRegex = /(https?:\/\/[^\s)]+)([)\s]|$)/g;
+            return text.replace(urlRegex, (match, url, endChar) => {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${endChar}`;
+            });
+        }
+
+        async function fetchSharedItem(id) {
+            const resp = await fetch(`/api/shared/${encodeURIComponent(id)}`);
+            if (!resp.ok) throw new Error('Item not found');
+            return resp.json();
+        }
+
+        async function renderSharedItem() {
+            const id = getQueryParam('id');
+            const container = document.getElementById('shared-item-container');
+            if (!id) {
+                container.innerHTML = '<div class="item-item">Invalid share link.</div>';
+                return;
+            }
+            try {
+                const item = await fetchSharedItem(id);
+                const li = document.createElement('li');
+                li.className = 'item-item';
+                li.innerHTML = `<span class="item-text">${linkifyText(item.text)}</span>`;
+                container.appendChild(li);
+            } catch (e) {
+                container.innerHTML = '<div class="item-item">Shared item not found or expired.</div>';
+            }
+        }
+
+        renderSharedItem();
+    </script>
+</body>
+</html>
