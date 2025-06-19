@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = document.createElement('li');
         li.className = 'item-item';
         li.draggable = true;
-        li.setAttribute('data-item-id', item.text); // Using text as a simple identifier
+        li.setAttribute('data-item-id', item.id || item.text); // Use id if available
 
         // Ensure item.shared property exists (default: false)
         if (typeof item.shared !== 'boolean') item.shared = false;
@@ -350,8 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </svg>
         `;
         function getShareLink() {
-            // This is a placeholder. Replace with your real share link logic if needed.
-            return window.location.origin + '/share/' + encodeURIComponent(item.text);
+            // Use the unique id for sharing
+            return window.location.origin + '/share.html?id=' + encodeURIComponent(item.id);
         }
         shareBtn.addEventListener('click', (e) => {
             e.stopPropagation();

@@ -92,11 +92,44 @@
                 const item = await fetchSharedItem(id);
                 const li = document.createElement('li');
                 li.className = 'item-item';
-                li.innerHTML = `<span class="item-text">${linkifyText(item.text)}</span>`;
+                // Only item text and copy button, styled like main page
+                li.innerHTML = `
+                    <span class="item-text">${linkifyText(item.text)}</span>
+                    <button class="copy-btn" aria-label="Copy item text" title="Copy to clipboard">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                `;
+                // Add .long-text class if text is more than 1 line
+                const lineCount = (item.text.match(/\n/g) || []).length + 1;
+                if (lineCount > 1) {
+                    li.classList.add('long-text');
+                }
+                // Copy button logic
+                const copyBtn = li.querySelector('.copy-btn');
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(item.text)
+                        .then(() => showToast('Copied to clipboard'))
+                        .catch(() => showToast('Failed to copy', 'error'));
+                });
                 container.appendChild(li);
             } catch (e) {
                 container.innerHTML = '<div class="item-item">Shared item not found or expired.</div>';
             }
+        }
+
+        // Toast helper for feedback
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) return;
+            const toast = document.createElement('div');
+            toast.className = `toast show ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 1800);
         }
 
         renderSharedItem();
