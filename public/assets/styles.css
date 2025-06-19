@@ -10,6 +10,8 @@
     --transition: 0.2s ease;
     --success-status-bg: rgba(37, 99, 235, 0.6);
     --danger-status-bg:rgba(220, 38, 38, 0.6);
+    --share-btn: #757575;
+    --share-btn-hover: #424242;
 }
 
 [data-theme="dark"] {
@@ -20,6 +22,8 @@
     --shadow: 0 2px 4px rgba(0,0,0,0.2);
     --success-status-bg: rgba(96, 165, 250, 0.5);
     --danger-status-bg:rgba(220, 38, 38, 0.5);
+    --share-btn: #e0e0e0;
+    --share-btn-hover: #ffffff;
 }
 
 * {
@@ -181,6 +185,11 @@ input:focus {
     cursor: default;
     position: relative;
     box-sizing: border-box;
+    z-index: 1; /* default stacking context for list items */
+}
+
+.item-item.long-text {
+    align-items: flex-start;
 }
 
 .item-item:not(.completed) {
@@ -210,6 +219,15 @@ input:focus {
     font-size: 1em;
     margin-right: 0.5em;
     white-space: pre-line;
+}
+
+/* Remove hover and pointer styles for shared item text */
+.shared-view .item-text {
+    cursor: default !important;
+    background: none !important;
+}
+.shared-view .item-text:hover {
+    background: none !important;
 }
 
 .checkbox-wrapper {
@@ -288,7 +306,7 @@ input:focus {
 }
 
 .delete-btn {
-    margin-left: auto;
+    margin-left: 0.1rem;
     background: transparent;
     color: #ff4444;
     padding: 0.25rem 0.5rem;
@@ -303,11 +321,11 @@ input:focus {
 .copy-btn {
     background: transparent;
     color: var(--primary);
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.4rem;
     border: 1px solid var(--primary);
     border-radius: 8px;
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -317,17 +335,85 @@ input:focus {
     min-width: 2em;
 }
 
-.copy-btn:hover {
-    background: rgba(33, 150, 243, 0.1);
-    border-color: var(--primary-hover);
+.share-btn {
+    background: transparent;
+    color: var(--share-btn);
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--share-btn);
+    border-radius: 8px;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition);
+    height: 2em;
+    min-width: 2em;
 }
 
-.copy-btn svg {
+.share-btn:hover {
+    background: rgba(66,66,66,0.08);
+    border-color: var(--share-btn-hover);
+    color: var(--share-btn-hover);
+}
+
+.share-btn svg {
     width: 16px;
     height: 16px;
-    stroke: var(--primary);
+    stroke: var(--share-btn);
     stroke-width: 2;
     fill: none;
+    transition: stroke var(--transition);
+}
+
+.share-btn:hover svg {
+    stroke: var(--share-btn-hover);
+}
+
+.share-btn.shared-active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.share-btn.shared-active svg {
+    stroke: #fff;
+}
+
+.share-dropdown {
+    background: var(--container);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    min-width: 140px;
+    padding: 0.25rem 0;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 10000 !important; /* ensure dropdown is always above .item-item and its children */
+    left: 0;
+    top: 100%;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    color: var(--text);
+    text-align: left;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 0;
+    transition: background var(--transition);
+    width: 100%;
+    display: block;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.dropdown-item:hover {
+    background: rgba(33, 150, 243, 0.08);
 }
 
 /* .toast-container {
@@ -883,4 +969,173 @@ textarea#itemInput {
     box-sizing: border-box;
     align-self: stretch;
     /* Make sure it matches the textarea height visually */
+}
+
+/* Share Modal Styles */
+.share-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.share-modal-content {
+    background: var(--container);
+    color: var(--text);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    min-width: 280px;
+    max-width: 420px;
+    width: auto;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.share-modal-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: stretch;
+    margin-top: 0.5rem;
+}
+
+.share-link-input {
+    flex: 1 1 auto;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--container);
+    color: var(--text);
+    font-size: 1em;
+    transition: border-color var(--transition);
+    text-align: left;
+    height: 2.5em;
+    box-sizing: border-box;
+}
+
+.share-link-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Match copy button style to .copy-btn on list items */
+.share-modal-copy-btn {
+    background: transparent;
+    color: var(--primary);
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition);
+    height: 3em;
+    min-width: 2.5em;
+    box-sizing: border-box;
+}
+
+.share-modal-copy-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--primary);
+    stroke-width: 2;
+    fill: none;
+}
+
+.share-modal-copy-btn:hover {
+    background: rgba(33, 150, 243, 0.08);
+    border-color: var(--primary-hover);
+    color: var(--primary-hover);
+}
+
+.share-modal-copy-btn:hover svg {
+    stroke: var(--primary-hover);
+}
+
+/* Match disable sharing button style to .delete-btn on list items */
+.share-modal-disable-btn {
+    background: transparent;
+    color: #ff4444;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ff4444;
+    border-radius: 8px;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--transition), border-color var(--transition);
+    height: 3em;
+    min-width: 8rem;
+    box-sizing: border-box;
+}
+
+.share-modal-disable-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: #ff4444;
+    stroke-width: 2;
+    fill: none;
+    margin-right: 0.2em;
+}
+
+.share-modal-disable-btn:hover {
+    background: rgba(255,68,68,0.1);
+    border-color: #ff6666;
+    color: #ff6666;
+}
+
+.share-modal-disable-btn:hover svg {
+    stroke: #ff6666;
+}
+
+@media (max-width: 480px) {
+    .share-modal-content {
+        min-width: 0;
+        padding: 1rem 0.5rem 1rem 0.5rem;
+    }
+    .share-link-input {
+        font-size: 0.95em;
+    }
+    .share-modal-copy-btn, .share-modal-disable-btn {
+        font-size: 0.95em;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Adjust the close button styles */
+.share-modal .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: grey;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.share-modal .close-modal:hover {
+    color: darkgrey;
 }

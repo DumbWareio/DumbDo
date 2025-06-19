@@ -282,27 +282,58 @@ async function initDataFile() {
     console.log('Pastebin stored at:', DATA_FILE);
 }
 
+// Ensure every item has a unique id (UUID)
+function ensureItemIds(items) {
+    let changed = false;
+    Object.keys(items).forEach(list => {
+        if (Array.isArray(items[list])) {
+            items[list] = items[list].map(item => {
+                if (item && typeof item === 'object') {
+                    if (!item.id) {
+                        changed = true;
+                        return { ...item, id: crypto.randomUUID() };
+                    }
+                }
+                return item;
+            });
+        }
+    });
+    return changed;
+}
+
 // Protected API routes
 app.get('/api/items', async (req, res) => {
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
-        // Remove completed property from all items before sending
         let items = {};
         try {
             items = JSON.parse(data);
         } catch {}
         if (items && typeof items === 'object') {
+            // Remove completed property and ensure id for all items
+            let changed = false;
             Object.keys(items).forEach(list => {
                 if (Array.isArray(items[list])) {
                     items[list] = items[list].map(item => {
-                        if (item && typeof item === 'object' && 'completed' in item) {
-                            const { completed, ...rest } = item;
-                            return rest;
+                        if (item && typeof item === 'object') {
+                          let newItem = { ...item };
+                          if ('completed' in newItem) {
+                            const { completed, ...rest } = newItem;
+                            newItem = rest;
+                        }
+                        if (!newItem.id) {
+                          newItem.id = crypto.randomUUID();
+                          changed = true;
+                        }
+                        return newItem;
                         }
                         return item;
                     });
                 }
             });
+            if (changed) {
+                await fs.writeFile(DATA_FILE, JSON.stringify(items, null, 2));
+            }
         }
         res.json(items);
     } catch (error) {
@@ -312,15 +343,24 @@ app.get('/api/items', async (req, res) => {
 
 app.post('/api/items', async (req, res) => {
     try {
-        // Remove completed property from all items before saving
         let items = req.body;
         if (items && typeof items === 'object') {
+            // Remove completed property and ensure id for all items
+            let changed = false;
             Object.keys(items).forEach(list => {
                 if (Array.isArray(items[list])) {
                     items[list] = items[list].map(item => {
-                        if (item && typeof item === 'object' && 'completed' in item) {
-                            const { completed, ...rest } = item;
-                            return rest;
+                        if (item && typeof item === 'object') {
+                          let newItem = { ...item };
+                          if ('completed' in newItem) {
+                            const { completed, ...rest } = newItem;
+                            newItem = rest;
+                        }
+                        if (!newItem.id) {
+                          newItem.id = crypto.randomUUID();
+                          changed = true;
+                        }
+                        return newItem;
                         }
                         return item;
                     });
@@ -331,6 +371,31 @@ app.post('/api/items', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Failed to save items' });
+    }
+});
+
+// API route to fetch a shared item by id
+app.get('/api/shared/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await fs.readFile(DATA_FILE, 'utf8');
+        let items = {};
+        try {
+            items = JSON.parse(data);
+        } catch {}
+        if (items && typeof items === 'object') {
+            for (const list of Object.values(items)) {
+                if (Array.isArray(list)) {
+                    const found = list.find(item => item && item.id === id && item.shared);
+                    if (found) {
+                        return res.json({ text: found.text });
+                    }
+                }
+            }
+        }
+        res.status(404).json({ error: 'Item not found or not shared' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch shared item' });
     }
 });
 

@@ -306,7 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = document.createElement('li');
         li.className = 'item-item';
         li.draggable = true;
-        li.setAttribute('data-item-id', item.text); // Using text as a simple identifier
+        li.setAttribute('data-item-id', item.id || item.text); // Use id if available
+
+        // Ensure item.shared property exists (default: false)
+        if (typeof item.shared !== 'boolean') item.shared = false;
 
         // Remove the old checkbox-wrapper and just show the text and delete button
         li.innerHTML = `
@@ -314,16 +317,65 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="copy-btn" aria-label="Copy item text" title="Copy to clipboard">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
+            <button class="share-btn${item.shared ? ' shared-active' : ''}" aria-label="${item.shared ? 'Disable' : 'Enable'} sharing for item" title="${item.shared ? 'Sharing enabled' : 'Enable sharing'}"></button>
             <button class="delete-btn" aria-label="Delete item">×</button>
         `;
+
+        // Add .long-text class if text is more than 3 lines
+        const lineCount = (item.text.match(/\n/g) || []).length + 1;
+        if (lineCount > 1) {
+            li.classList.add('long-text');
+        }
 
         const itemText = li.querySelector('.item-text');
         const copyBtn = li.querySelector('.copy-btn');
         copyBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             navigator.clipboard.writeText(item.text)
-                .then(() => toastManager.show('Copied to clipboard'))
+                .then(() => toastManager.show('Link copied to clipboard'))
                 .catch(() => toastManager.show('Failed to copy', 'error'));
+        });
+
+        // Share logic
+        const shareBtn = li.querySelector('.share-btn');
+        // Remove the old dropdown logic
+        // Add SVG to shareBtn
+        shareBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+        `;
+        function getShareLink() {
+            // Use the unique id for sharing
+            return window.location.origin + '/share.html?id=' + encodeURIComponent(item.id);
+        }
+        shareBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!item.shared) {
+                item.shared = true;
+                shareBtn.classList.add('shared-active');
+                shareBtn.setAttribute('aria-label', 'Disable sharing for item');
+                shareBtn.setAttribute('title', 'Sharing enabled');
+                saveItems();
+                // Copy link to clipboard
+                navigator.clipboard.writeText(getShareLink())
+                    .then(() => toastManager.show('Link copied to clipboard'))
+                    .catch(() => toastManager.show('Sharing enabled, but failed to copy link', 'error'));
+            } else {
+                // Show modal instead of dropdown
+                showShareModal(item, getShareLink(), () => {
+                    item.shared = false;
+                    shareBtn.classList.remove('shared-active');
+                    shareBtn.setAttribute('aria-label', 'Enable sharing for item');
+                    shareBtn.setAttribute('title', 'Enable sharing');
+                    saveItems();
+                    toastManager.show('Sharing disabled for this item');
+                });
+            }
         });
 
         // Make text editable on click
@@ -475,4 +527,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initialize();
+
+    // Add this function at the top-level (inside DOMContentLoaded)
+    function showShareModal(item, shareLink, onDisable) {
+        // Remove any existing modal
+        const existingModal = document.getElementById('share-modal');
+        if (existingModal) existingModal.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'share-modal';
+        modal.className = 'share-modal';
+        modal.innerHTML = `
+            <div class="share-modal-content">
+                <button class="close-modal" aria-label="Close">&times;</button>
+                <h2>Share Link</h2>
+                <div class="share-modal-row">
+                    <input type="text" class="share-link-input" value="${shareLink}" readonly />
+                    <button class="share-modal-copy-btn" title="Copy Link" aria-label="Copy Link">
+                        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="share-modal-disable-btn" title="Disable Sharing" aria-label="Disable Sharing">
+                        Disable Sharing
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Focus the input for easy copying
+        const input = modal.querySelector('.share-link-input');
+        input.focus();
+        input.select();
+
+        // Copy link button
+        modal.querySelector('.share-modal-copy-btn').onclick = () => {
+            navigator.clipboard.writeText(shareLink)
+                .then(() => toastManager.show('Link copied to clipboard'))
+                .catch(() => toastManager.show('Failed to copy link', 'error'));
+        };
+        // Disable sharing button
+        modal.querySelector('.share-modal-disable-btn').onclick = () => {
+            onDisable();
+            modal.remove();
+        };
+        // Close modal button
+        modal.querySelector('.close-modal').onclick = () => {
+            modal.remove();
+        };
+        // Close on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+        // Close on Escape key
+        document.addEventListener('keydown', function escListener(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escListener);
+            }
+        });
+    }
 })
