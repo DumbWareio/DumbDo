@@ -221,6 +221,15 @@ input:focus {
     white-space: pre-line;
 }
 
+/* Remove hover and pointer styles for shared item text */
+.shared-view .item-text {
+    cursor: default !important;
+    background: none !important;
+}
+.shared-view .item-text:hover {
+    background: none !important;
+}
+
 .checkbox-wrapper {
     position: relative;
     width: 100%;

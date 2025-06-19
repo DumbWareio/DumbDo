@@ -91,7 +91,7 @@
             try {
                 const item = await fetchSharedItem(id);
                 const li = document.createElement('li');
-                li.className = 'item-item';
+                li.className = 'item-item shared-view'; // Add shared-view for CSS targeting
                 // Only item text and copy button, styled like main page
                 li.innerHTML = `
                     <span class="item-text">${linkifyText(item.text)}</span>
