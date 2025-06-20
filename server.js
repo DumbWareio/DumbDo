@@ -399,6 +399,12 @@ app.get('/api/shared/:id', async (req, res) => {
     }
 });
 
+// Healthcheck endpoint
+app.get('/api/status', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+
 // Initialize and start server
 initDataFile().then(() => {
     app.listen(PORT, () => {
