@@ -2,6 +2,10 @@
 
 A stupidly simple pastebin application that just works. No complex database, no unnecessary features - just stuff you paste in there.
 
+This project is an adaptation of [DumbDo](https://www.dumbware.io/DumbDo). I made this in the spirit
+of Dumbware.io's "Dumb" design system, which emphasizes simplicity and minimalism. 
+I made this for myself, but I hope you find it useful too.
+
 
 ## Features
 
