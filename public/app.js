@@ -415,10 +415,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBtn = li.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', () => {
-            li.remove();
-            items[currentList] = items[currentList].filter(t => t !== item);
-            saveItems();
-            toastManager.show('Item deleted', 'error');
+            if (confirm(`Are you sure you want to delete "${item.text}"?`)) {
+                li.remove();
+                items[currentList] = items[currentList].filter(t => t !== item);
+                saveItems();
+                toastManager.show('Item deleted', 'error');
+            }
         });
 
         // Drag and drop event listeners
@@ -511,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Pastebin`;
                 document.getElementById('header-title').textContent = config.siteTitle;
                 
-                loadItems();       
+                loadItems();
             })
             .catch(err => {
                 console.error('Error loading site config:', err);
