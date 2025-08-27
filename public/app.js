@@ -1,4 +1,4 @@
-import { ToastManager } from './managers/toast.js'
+import { ToastManager } from './managers/toast.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,11 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set up list selector event handlers once
     const selectorContainer = listSelector.parentElement;
-
-    function handleSingleListMode() {
-        const isSingleList = document.body.getAttribute('data-single-list') === 'true';
-        if (listControls) listControls.style.display = isSingleList ? 'none' : '';
-    }
 
     // Show/hide custom select on click
     function handleSelectorClick(e) {
@@ -164,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         selectorContainer.appendChild(customSelect);
-        handleSingleListMode();
     }
 
     function switchList(listId) {
@@ -549,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Todo List`;
                 document.getElementById('header-title').textContent = config.siteTitle;
-                document.body.setAttribute('data-single-list', config.singleList);
+                if (listControls) listControls.style.display = config.singleList ? 'none' : '';
 
                 loadTodos();
             })
