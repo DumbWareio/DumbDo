@@ -21,6 +21,7 @@ A stupidly simple todo list application that just works. No complex database, no
 |----------|-------------|---------|----------|
 | PORT | The port number the server will listen on | 3000 | No |
 | DUMBDO_PIN | PIN protection for accessing todos (4-10 digits) | - | No |
+| SINGLE_LIST | Show a single List of ToDos (without the selector) | false | No |
 
 ## Quick Start
 
