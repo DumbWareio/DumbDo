@@ -14,6 +14,7 @@ const { generatePWAManifest } = require('./scripts/pwa-manifest-generator');
 const PORT = process.env.PORT || 3000;
 const PIN = process.env.DUMBDO_PIN;
 const SITE_TITLE = process.env.DUMBDO_SITE_TITLE || 'DumbDo';
+const SINGLE_LIST = process.env.SINGLE_LIST === 'true' || false;
 const MIN_PIN_LENGTH = 4;
 const MAX_PIN_LENGTH = 10;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -167,7 +168,8 @@ app.post('/api/verify-pin', (req, res) => {
 // Get site configuration
 app.get('/api/config', (req, res) => {
     res.json({
-        siteTitle: SITE_TITLE
+        siteTitle: SITE_TITLE,
+        singleList: SINGLE_LIST
     });
 });
 
