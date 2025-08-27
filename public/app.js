@@ -20,9 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteListBtn = document.getElementById('deleteList');
     const addListBtn = document.getElementById('addList');
 
+    const listControls = document.getElementById('listControls');
 
     // Set up list selector event handlers once
     const selectorContainer = listSelector.parentElement;
+
+    function handleSingleListMode() {
+        const isSingleList = document.body.getAttribute('data-single-list') === 'true';
+        if (listControls) listControls.style.display = isSingleList ? 'none' : '';
+    }
 
     // Show/hide custom select on click
     function handleSelectorClick(e) {
@@ -158,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         selectorContainer.appendChild(customSelect);
+        handleSingleListMode();
     }
 
     function switchList(listId) {
@@ -542,8 +549,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Todo List`;
                 document.getElementById('header-title').textContent = config.siteTitle;
-                
-                loadTodos();       
+                document.body.setAttribute('data-single-list', config.singleList);
+
+                loadTodos();
             })
             .catch(err => {
                 console.error('Error loading site config:', err);
