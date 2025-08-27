@@ -1,4 +1,4 @@
-import { ToastManager } from './managers/toast.js'
+import { ToastManager } from './managers/toast.js';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteListBtn = document.getElementById('deleteList');
     const addListBtn = document.getElementById('addList');
 
+    const listControls = document.getElementById('listControls');
 
     // Set up list selector event handlers once
     const selectorContainer = listSelector.parentElement;
@@ -542,8 +543,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Todo List`;
                 document.getElementById('header-title').textContent = config.siteTitle;
-                
-                loadTodos();       
+                if (listControls) listControls.style.display = config.singleList ? 'none' : '';
+
+                loadTodos();
             })
             .catch(err => {
                 console.error('Error loading site config:', err);
