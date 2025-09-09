@@ -49,8 +49,6 @@ npm start
 
 ### Using Docker
 
-
-1. Build locally
 ```bash
 docker run --rm -p 3000:3000 -v $(pwd)/data:/app/data dumbbin/dumbbin
 ```
