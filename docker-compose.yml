@@ -15,8 +15,8 @@ services:
       # (Optional) Restrict origins - ex: https://subdomain.domain.tld,https://auth.proxy.tld,http://internalip:port' (default is '*')
       # - ALLOWED_ORIGINS=http://localhost:3000
       # - NODE_ENV=development # default production (development allows all origins)
-    #healthcheck:
-    #  test: wget --spider -q  http://127.0.0.1:3000
+    # healthcheck:
+    #  test: wget --spider -q  http://127.0.0.1:3000/api/status
     #  start_period: 20s
     #  interval: 20s
     #  timeout: 5s

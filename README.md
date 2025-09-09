@@ -30,8 +30,8 @@ I made this for myself, but I hope you find it useful too.
 
 1. Clone the repository
 ```bash
-git clone https://github.com/masoncfrancis/dumbbin.git
-cd dumbbin
+git clone https://github.com/DumbBin/DumbBin.git
+cd DumbBin
 ```
 
 2. Install dependencies
@@ -51,17 +51,16 @@ npm start
 
 1. Build locally
 ```bash
-docker build -t dumbbin .
-docker run -p 3000:3000 -v $(pwd)/data:/app/data dumbbin
+docker run --rm -p 3000:3000 -v $(pwd)/data:/app/data dumbbin/dumbbin
 ```
 
-2. Docker Compose
+### Using Docker Compose
+
+1. Create a `docker-compose.yml` file
 ```yaml
 services:
   dumbbin:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: dumbbin/dumbbin
     container_name: dumbbin
     restart: unless-stopped
     ports:
@@ -74,13 +73,20 @@ services:
       # (Optional) Restrict origins - ex: https://subdomain.domain.tld,https://auth.proxy.tld,http://internalip:port' (default is '*')
       # - ALLOWED_ORIGINS=http://localhost:3000
       # - NODE_ENV=development # default production (development allows all origins)
-    #healthcheck:
-    #  test: wget --spider -q  http://127.0.0.1:3000
+    # healthcheck:
+    #  test: wget --spider -q  http://127.0.0.1:3000/api/status
     #  start_period: 20s
     #  interval: 20s
     #  timeout: 5s
     #  retries: 3
 ```
+
+2. Run the application
+```bash
+docker-compose up
+```
+
+
 ## Storage
 
 Items are stored in a JSON file at `app/data/items.json`. The file is automatically created when you first run the application. 
@@ -108,6 +114,10 @@ dumbbin/
 ├── Dockerfile     # Docker configuration
 └── package.json   # Dependencies and scripts
 ```
+
+## Health Check
+
+The application includes a health check endpoint to monitor its status. You can access it at `http://[Your_Path]/api/status`.
 
 ## Contributing
 
