@@ -1,6 +1,6 @@
 {
   "name": "dumbbin",
-  "version": "1.0.0",
+  "version": "12112025",
   "description": "A stupidly simple pastebin",
   "main": "server.js",
   "scripts": {
