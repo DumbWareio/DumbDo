@@ -9,6 +9,16 @@ const app = express();
 const { getCorsOptions, originValidationMiddleware } = require('./scripts/cors');
 const { convertLogoToPng } = require('./scripts/convert-logo');
 const { generatePWAManifest } = require('./scripts/pwa-manifest-generator');
+const rateLimit = require('express-rate-limit');
+
+// Create a rate limiter for API endpoints
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 120, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 
 // Environment variables
 const PORT = process.env.PORT || 3000;
@@ -165,7 +175,7 @@ app.post('/api/verify-pin', (req, res) => {
 });
 
 // Get site configuration
-app.get('/api/config', (req, res) => {
+app.get('/api/config', apiLimiter, (req, res) => {
     res.json({
         siteTitle: SITE_TITLE
     });
@@ -302,7 +312,7 @@ function ensureItemIds(items) {
 }
 
 // Protected API routes
-app.get('/api/items', async (req, res) => {
+app.get('/api/items', apiLimiter, async (req, res) => {
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
         let items = {};
@@ -341,7 +351,7 @@ app.get('/api/items', async (req, res) => {
     }
 });
 
-app.post('/api/items', async (req, res) => {
+app.post('/api/items', apiLimiter, async (req, res) => {
     try {
         let items = req.body;
         if (items && typeof items === 'object') {
@@ -375,7 +385,7 @@ app.post('/api/items', async (req, res) => {
 });
 
 // API route to fetch a shared item by id
-app.get('/api/shared/:id', async (req, res) => {
+app.get('/api/shared/:id', apiLimiter, async (req, res) => {
     const { id } = req.params;
     try {
         const data = await fs.readFile(DATA_FILE, 'utf8');
@@ -400,7 +410,7 @@ app.get('/api/shared/:id', async (req, res) => {
 });
 
 // Healthcheck endpoint
-app.get('/api/status', (req, res) => {
+app.get('/api/status', apiLimiter, (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
