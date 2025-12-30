@@ -14,9 +14,3 @@ services:
       # - ALLOWED_ORIGINS=http://localhost:3000
       # - NODE_ENV=development # default production (development allows all origins)
       - SINGLE_LIST=${SINGLE_LIST:-false}
-    #healthcheck:
-    #  test: wget --spider -q  http://127.0.0.1:3000
-    #  start_period: 20s
-    #  interval: 20s
-    #  timeout: 5s
-    #  retries: 3
