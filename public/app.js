@@ -533,7 +533,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const initialize = async () => {
-        // Initialize
         fetch(`api/config`)
             .then(resp => resp.json())
             .then(config => {
@@ -541,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(config.error);
                 }
 
-                document.getElementById('page-title').textContent = `${config.siteTitle} - Stupidly Simple Todo List`;
+                document.getElementById('page-title').textContent = config.siteTitle;
                 document.getElementById('header-title').textContent = config.siteTitle;
                 if (listControls) listControls.style.display = config.singleList ? 'none' : '';
 
