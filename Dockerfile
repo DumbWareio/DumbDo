@@ -31,5 +31,10 @@ RUN mkdir -p data
 # Expose port (internal port)
 EXPOSE 3000
 
+# Healthcheck
+RUN apk add --no-cache wget
+HEALTHCHECK --interval=20s --timeout=5s --start-period=20s --retries=3 \
+    CMD wget --spider -q http://127.0.0.1:3000 || exit 1
+
 # Start the application
 CMD ["npm", "start"]
