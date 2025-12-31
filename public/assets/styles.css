@@ -345,11 +345,6 @@ input:focus {
     h1 {
         font-size: 1.5rem;
     }
-    
-    .todo-form {
-        flex-direction: column;
-        align-items: center;
-    }
 }
 
 /* PIN Modal Styles */
