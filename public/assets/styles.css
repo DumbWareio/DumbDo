@@ -73,9 +73,9 @@ button:hover {
 }
 
 #themeToggle {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
     background: transparent;
     font-size: 1.5rem;
     padding: 0.5rem;
@@ -86,6 +86,7 @@ button:hover {
     justify-content: center;
     border: 2px solid var(--text);
     border-radius: 50%;
+    z-index: 1000;
 }
 
 #themeToggle:hover {
@@ -98,12 +99,6 @@ button:hover {
     stroke: var(--text);
     fill: none;
     stroke-width: 2;
-}
-
-.button-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
 }
 
 .clear-btn {
@@ -331,15 +326,24 @@ input:focus {
 
 
 .todo-divider {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     max-width: 500px;
-    text-align: left;
     padding: 1rem 0;
     margin: 1rem 0;
     color: var(--text);
     opacity: 0.7;
     font-size: 0.9rem;
     border-bottom: 1px solid var(--border);
+    background: transparent;
+    text-align: left;
+}
+
+.todo-divider .clear-btn {
+    color: #e53935;
+    padding: 0.25rem;
 }
 
 @media (max-width: 480px) {
@@ -349,20 +353,6 @@ input:focus {
     
     h1 {
         font-size: 1.5rem;
-    }
-    
-    .todo-form {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .button-group {
-        width: 100%;
-        max-width: 400px;
-    }
-    
-    .button-group button[type="submit"] {
-        flex: 1;
     }
 }
 
@@ -634,11 +624,6 @@ input:focus {
     header {
         flex-direction: column;
         gap: 1rem;
-    }
-    
-    #themeToggle {
-        position: static;
-        margin-left: auto;
     }
 }
 
