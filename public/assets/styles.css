@@ -73,9 +73,9 @@ button:hover {
 }
 
 #themeToggle {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
     background: transparent;
     font-size: 1.5rem;
     padding: 0.5rem;
@@ -86,6 +86,7 @@ button:hover {
     justify-content: center;
     border: 2px solid var(--text);
     border-radius: 50%;
+    z-index: 500;
 }
 
 #themeToggle:hover {
@@ -634,11 +635,6 @@ input:focus {
     header {
         flex-direction: column;
         gap: 1rem;
-    }
-    
-    #themeToggle {
-        position: static;
-        margin-left: auto;
     }
 }
 
