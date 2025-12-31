@@ -101,12 +101,6 @@ button:hover {
     stroke-width: 2;
 }
 
-.button-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
 .clear-btn {
     background: transparent;
     padding: 0.5rem;
@@ -355,15 +349,6 @@ input:focus {
     .todo-form {
         flex-direction: column;
         align-items: center;
-    }
-    
-    .button-group {
-        width: 100%;
-        max-width: 400px;
-    }
-    
-    .button-group button[type="submit"] {
-        flex: 1;
     }
 }
 
