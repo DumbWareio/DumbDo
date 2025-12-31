@@ -66,15 +66,14 @@
                     placeholder="What needs to be done?"
                     required
                 >
-                <div class="button-group">
-                    <button type="submit">Add</button>
-                    <button type="button" id="clearCompleted" class="clear-btn" aria-label="Delete completed tasks">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                    </button>
-                </div>
+                <button type="submit">Add</button>
             </form>
+
+            <button type="button" id="clearCompleted" class="clear-btn" aria-label="Delete completed tasks">
+                <svg viewBox="0 0 24 24" width="16" height="16">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
 
             <ul id="todoList" class="todo-list">
                 <!-- Todo items will be inserted here -->
