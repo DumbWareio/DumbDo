@@ -497,11 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const clearBtn = document.createElement('button');
             clearBtn.type = 'button';
             clearBtn.className = 'clear-btn';
-            clearBtn.style.marginLeft = '1rem';
-            clearBtn.style.fontSize = '0.9rem';
-            clearBtn.style.padding = '0.25rem 0.75rem';
             clearBtn.textContent = 'Clear';
-            clearBtn.title = 'Clear completed tasks';
+            clearBtn.title = 'Clear Completed tasks';
             clearBtn.addEventListener('click', clearCompleted);
 
             divider.appendChild(dividerText);

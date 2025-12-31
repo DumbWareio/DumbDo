@@ -326,15 +326,24 @@ input:focus {
 
 
 .todo-divider {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     max-width: 500px;
-    text-align: left;
     padding: 1rem 0;
     margin: 1rem 0;
     color: var(--text);
     opacity: 0.7;
     font-size: 0.9rem;
     border-bottom: 1px solid var(--border);
+    background: transparent;
+    text-align: left;
+}
+
+.todo-divider .clear-btn {
+    color: #e53935;
+    padding: 0.25rem;
 }
 
 @media (max-width: 480px) {
