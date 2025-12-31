@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinModal = document.getElementById('pinModal');
     const pinInputs = [...document.querySelectorAll('.pin-input')];
     const pinError = document.getElementById('pinError');
-    const clearCompletedBtn = document.getElementById('clearCompleted');
     const listSelector = document.getElementById('listSelector');
     const renameListBtn = document.getElementById('renameList');
     const deleteListBtn = document.getElementById('deleteList');
@@ -489,7 +488,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeTodos.length > 0 && completedTodos.length > 0) {
             const divider = document.createElement('li');
             divider.className = 'todo-divider';
-            divider.textContent = 'Completed';
+
+            // Create text node for "Completed"
+            const dividerText = document.createElement('span');
+            dividerText.textContent = 'Completed';
+
+            // Create clear button
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'clear-btn';
+            clearBtn.style.marginLeft = '1rem';
+            clearBtn.style.fontSize = '0.9rem';
+            clearBtn.style.padding = '0.25rem 0.75rem';
+            clearBtn.textContent = 'Clear';
+            clearBtn.title = 'Clear completed tasks';
+            clearBtn.addEventListener('click', clearCompleted);
+
+            divider.appendChild(dividerText);
+            divider.appendChild(clearBtn);
+
             todoList.appendChild(divider);
         }
         
@@ -515,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clear completed tasks
-    clearCompletedBtn.addEventListener('click', () => {
+    function clearCompleted() {
         const currentTodos = todos[currentList];
         const completedCount = currentTodos.filter(todo => todo.completed).length;
         
@@ -530,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveTodos();
             toastManager.show(`Cleared ${completedCount} completed task${completedCount === 1 ? '' : 's'}`);
         }
-    });
+    }
 
     const initialize = async () => {
         fetch(`api/config`)
