@@ -83,6 +83,16 @@ services:
     #  timeout: 5s
     #  retries: 3
 ```
+
+## Easypanel
+
+Dumbdo has a one-click deployment template on [Easypanel](https://easypanel.io), a self-hosted Docker deployment platform.
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/dumbdo
+
 ## Storage
 
 Todos are stored in a JSON file at `app/data/todos.json`. The file is automatically created when you first run the application. 
