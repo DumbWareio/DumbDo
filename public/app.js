@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinInputs = [...document.querySelectorAll('.pin-input')];
     const pinError = document.getElementById('pinError');
     const clearCompletedBtn = document.getElementById('clearCompleted');
+    const sortTasksCheckbox = document.getElementById("sortTasks");
     const listSelector = document.getElementById('listSelector');
     const renameListBtn = document.getElementById('renameList');
     const deleteListBtn = document.getElementById('deleteList');
@@ -24,6 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set up list selector event handlers once
     const selectorContainer = listSelector.parentElement;
+
+    // Set the sort state based on localStorage
+    const sortState = localStorage.getItem('sort');
+    if (sortState === 'true') {
+        sortTasksCheckbox.checked = true;
+    } else {
+        sortTasksCheckbox.checked = false;
+    }
 
     // Show/hide custom select on click
     function handleSelectorClick(e) {
@@ -86,11 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     convertedData[key] = value;
                 }
             });
-            
+
             todos = convertedData;
             currentList = Object.keys(convertedData)[0];
         }
-        
+
         updateListSelector();
         renderTodos();
     }
@@ -102,26 +111,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (b === 'List 1') return 1;
             return a.localeCompare(b);
         });
-        
+
         // Update the native select
-        listSelector.innerHTML = sortedKeys.map(listId => 
-            `<option value="${listId}"${listId === currentList ? ' selected' : ''}>${listId}</option>`
-        ).join('');
-        
+        listSelector.innerHTML = sortedKeys
+          .map((listId) => `<option value="${listId}"${listId === currentList ? " selected" : ""}>${listId}</option>`)
+          .join("");
+
         // Create a custom select
         const customSelect = document.createElement('div');
         customSelect.className = 'custom-select';
         customSelect.style.display = 'none'; // Explicitly set initial state
-        
+
         sortedKeys.forEach(listId => {
             const item = document.createElement('div');
             item.className = `list-item ${listId === 'List 1' ? 'list-1' : ''}`;
             item.dataset.value = listId;
-            
+
             const nameSpan = document.createElement('span');
             nameSpan.textContent = listId;
             item.appendChild(nameSpan);
-            
+
             if (listId !== 'List 1') {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
@@ -138,17 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 item.appendChild(deleteBtn);
             }
-            
+
             item.addEventListener('click', () => {
                 if (listId !== currentList) {
                     switchList(listId);
                     customSelect.style.display = 'none';
                 }
             });
-            
+
             customSelect.appendChild(item);
         });
-        
+
         // Replace the existing custom select if any
         const existingCustomSelect = selectorContainer.querySelector('.custom-select');
         if (existingCustomSelect) {
@@ -183,16 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newName && newName.trim() && newName !== currentList && !todos[newName]) {
             const oldName = currentList;
             const oldTodos = { ...todos };  // Keep a full backup
-            
+
             try {
                 // Update the data structure
                 todos[newName] = todos[currentList];
                 delete todos[currentList];
                 currentList = newName;
-                
+
                 // Update UI
                 updateListSelector();
-                
+
                 // Save changes
                 await saveTodos();
                 toastManager.show('List renamed');
@@ -218,16 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Remove the list
                 delete todos[listId];
-                
+
                 // If we're deleting the current list, switch to another one
                 if (listId === currentList) {
                     currentList = Object.keys(todos)[0];
                 }
-                
+
                 // Update UI
                 updateListSelector();
                 renderTodos();
-                
+
                 // Save changes
                 await saveTodos();
                 toastManager.show('List deleted');
@@ -307,13 +316,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function createTodoElement(todo) {
         const li = document.createElement('li');
         li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-        
+
         // Add drag attributes only for non-completed items
         if (!todo.completed) {
             li.draggable = true;
             li.setAttribute('data-todo-id', todo.text); // Using text as a simple identifier
         }
-        
+
         li.innerHTML = `
             <div class="checkbox-wrapper">
                 <input type="checkbox" ${todo.completed ? 'checked' : ''}>
@@ -325,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkbox = li.querySelector('input');
         const checkboxWrapper = li.querySelector('.checkbox-wrapper');
         const todoText = li.querySelector('.todo-text');
-        
+
         // Add click handler to the wrapper
         checkboxWrapper.addEventListener('click', (e) => {
             // Only trigger if clicking the wrapper (not the checkbox directly)
@@ -337,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 toastManager.show(todo.completed ? 'Task completed! 🎉' : 'Task uncompleted');
             }
         });
-        
+
         checkbox.addEventListener('change', () => {
             todo.completed = checkbox.checked;
             renderTodos();
@@ -349,16 +358,16 @@ document.addEventListener('DOMContentLoaded', () => {
         todoText.addEventListener('click', (e) => {
             // Don't trigger edit if clicking a link
             if (e.target.tagName === 'A') return;
-            
+
             const input = document.createElement('input');
             input.type = 'text';
             input.value = todo.text;
             input.className = 'edit-input';
-            
+
             const originalText = todoText.innerHTML;
             todoText.replaceWith(input);
             input.focus();
-            
+
             function saveEdit() {
                 const newText = input.value.trim();
                 if (newText && newText !== todo.text) {
@@ -371,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     todoText.innerHTML = originalText;
                 }
             }
-            
+
             input.addEventListener('blur', saveEdit);
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -419,19 +428,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     const items = [...todoList.querySelectorAll('.todo-item:not(.completed)')];
                     const currentPos = items.indexOf(draggingItem);
                     const newPos = items.indexOf(li);
-                    
+
                     if (currentPos !== newPos) {
                         const rect = li.getBoundingClientRect();
                         const midY = rect.top + rect.height / 2;
                         const mouseY = e.clientY;
-                        
+
                         if (mouseY < midY) {
                             li.parentNode.insertBefore(draggingItem, li);
                         } else {
                             li.parentNode.insertBefore(draggingItem, li.nextSibling);
                         }
-                        
+
                         // Update the todos array to match the new order
+                        if (sortTasksCheckbox.checked) {
+                            toastManager.show('Manual sorting performed. Unchecking sort checkbox.', 'warning');
+                            sortTasksCheckbox.checked = false; // Uncheck the sort checkbox since manual sorting is performed
+                        }
                         const activeTodos = todos[currentList].filter(t => !t.completed);
                         const completedTodos = todos[currentList].filter(t => t.completed);
                         const newOrder = [...document.querySelectorAll('.todo-item:not(.completed)')].map(item => {
@@ -459,12 +472,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTodos() {
         todoList.innerHTML = '';
-        const currentTodos = todos[currentList] || [];
-        
+        const currentTodos = [...(todos[currentList] || [])];
+        if (sortTasksCheckbox.checked) {
+            currentTodos.sort((a, b) => a.text.localeCompare(b.text));
+        }
+
         // Separate todos into active and completed
         const activeTodos = currentTodos.filter(todo => !todo.completed);
         const completedTodos = currentTodos.filter(todo => todo.completed);
-        
+
         // Create a container for active todos
         const activeTodosContainer = document.createElement('div');
         activeTodosContainer.className = 'active-todos';
@@ -479,12 +495,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         todoList.appendChild(activeTodosContainer);
-        
+
         // Render active todos
         activeTodos.forEach(todo => {
             activeTodosContainer.appendChild(createTodoElement(todo));
         });
-        
+
         // Add divider if there are both active and completed todos
         if (activeTodos.length > 0 && completedTodos.length > 0) {
             const divider = document.createElement('li');
@@ -492,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
             divider.textContent = 'Completed';
             todoList.appendChild(divider);
         }
-        
+
         // Render completed todos
         completedTodos.forEach(todo => {
             todoList.appendChild(createTodoElement(todo));
@@ -503,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     todoForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = todoInput.value.trim();
-        
+
         if (text) {
             const todo = { text, completed: false };
             todos[currentList].push(todo);
@@ -518,18 +534,30 @@ document.addEventListener('DOMContentLoaded', () => {
     clearCompletedBtn.addEventListener('click', () => {
         const currentTodos = todos[currentList];
         const completedCount = currentTodos.filter(todo => todo.completed).length;
-        
+
         if (completedCount === 0) {
             toastManager.show('No completed tasks to clear');
             return;
         }
-        
+
         if (confirm(`Are you sure you want to delete ${completedCount} completed task${completedCount === 1 ? '' : 's'}?`)) {
             todos[currentList] = currentTodos.filter(todo => !todo.completed);
             renderTodos();
             saveTodos();
             toastManager.show(`Cleared ${completedCount} completed task${completedCount === 1 ? '' : 's'}`);
         }
+    });
+
+    // Sort/unsort tasks alphabetically
+    sortTasksCheckbox.addEventListener('change', () => {
+        if (sortTasksCheckbox.checked) {
+            localStorage.setItem('sort', 'true');
+            toastManager.show('Tasks sorted alphabetically');
+        } else {
+            localStorage.setItem('sort', 'false');
+            toastManager.show('Tasks order restored');
+        }
+        renderTodos();
     });
 
     const initialize = async () => {

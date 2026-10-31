@@ -10,6 +10,7 @@
     --transition: 0.2s ease;
     --success-status-bg: rgba(37, 99, 235, 0.6);
     --danger-status-bg:rgba(220, 38, 38, 0.6);
+    --warning-status-bg: rgba(245, 158, 11, 0.6);
 }
 
 [data-theme="dark"] {
@@ -20,6 +21,7 @@
     --shadow: 0 2px 4px rgba(0,0,0,0.2);
     --success-status-bg: rgba(96, 165, 250, 0.5);
     --danger-status-bg:rgba(220, 38, 38, 0.5);
+    --warning-status-bg: rgba(245, 158, 11, 0.5);
 }
 
 * {
@@ -52,6 +54,31 @@ header {
     gap: 1rem;
 }
 
+.header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+    min-height: 52px;
+}
+
+.header-spacer {
+    width: 40px;
+}
+
+#header-title {
+    grid-column: 2;
+    justify-self: center;
+    margin: 0;
+}
+
+#themeToggle {
+    grid-column: 3;
+    justify-self: end;
+    margin-left: auto;
+    position: static;
+}
+
 h1 {
     margin: 0;
     font-size: 2rem;
@@ -73,9 +100,6 @@ button:hover {
 }
 
 #themeToggle {
-    position: absolute;
-    top: 0;
-    right: 0;
     background: transparent;
     font-size: 1.5rem;
     padding: 0.5rem;
@@ -104,6 +128,7 @@ button:hover {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
 }
 
 .clear-btn {
@@ -135,14 +160,17 @@ button:hover {
 }
 
 input {
-    flex: 1;
-    max-width: 400px;
     padding: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--container);
     color: var(--text);
     transition: border-color var(--transition);
+}
+
+#todoInput {
+    width: 300px;
+    font-size: 1rem;
 }
 
 input:focus {
@@ -329,6 +357,9 @@ input:focus {
     background-color: var(--danger-status-bg);
 }
 
+.toast.warning {
+    background-color: var(--warning-status-bg);
+}
 
 .todo-divider {
     width: 100%;
@@ -346,23 +377,19 @@ input:focus {
     .app {
         padding: 1rem;
     }
-    
+
     h1 {
         font-size: 1.5rem;
     }
-    
+
     .todo-form {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .button-group {
         width: 100%;
         max-width: 400px;
-    }
-    
-    .button-group button[type="submit"] {
-        flex: 1;
     }
 }
 
@@ -464,7 +491,7 @@ input:focus {
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     width: 100%;
     padding: 0 1rem;
 }
@@ -628,17 +655,11 @@ input:focus {
     .list-controls {
         position: static;
         margin-bottom: 1rem;
-        justify-content: center;
     }
-    
+
     header {
         flex-direction: column;
         gap: 1rem;
-    }
-    
-    #themeToggle {
-        position: static;
-        margin-left: auto;
     }
 }
 
@@ -685,11 +706,11 @@ input:focus {
     .login-container {
         padding: 1rem;
     }
-    
+
     .login-box {
         padding: 1.5rem;
     }
-    
+
     .login-page h1 {
         font-size: 2rem;
     }
@@ -776,4 +797,4 @@ input:focus {
         padding: 0.75rem;
         margin: -0.75rem;
     }
-} 
+}

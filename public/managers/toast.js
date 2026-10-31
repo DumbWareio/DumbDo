@@ -11,6 +11,7 @@ export class ToastManager {
     toast.textContent = message;
 
     if (type === this.isSuccess) toast.classList.add('success');
+    else if (type === 'warning') toast.classList.add('warning');
     else toast.classList.add('error');
 
     this.container.appendChild(toast);
@@ -19,7 +20,7 @@ export class ToastManager {
       toast.addEventListener('click', () => this.hide(toast));
       toast.classList.add('show');
     }, 10);
-    
+
     if (!isStatic) {
       setTimeout(() => {
         toast.classList.remove('show');

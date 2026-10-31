@@ -1,4 +1,4 @@
-const CACHE_NAME = "DUMBDO_PWA_CACHE_V1";
+const CACHE_NAME = "DUMBDO_PWA_CACHE_V2";
 const ASSETS_TO_CACHE = [];
 
 const preload = async () => {
@@ -16,17 +16,40 @@ const preload = async () => {
 
 // Fetch asset manifest dynamically
 globalThis.addEventListener("install", (event) => {
-  event.waitUntil(preload());
+  event.waitUntil(preload().then(() => self.skipWaiting()));
 });
 
 globalThis.addEventListener("activate", (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .map((cacheName) => caches.delete(cacheName))
+      ))
+      .then(() => clients.claim())
+  );
 });
 
 globalThis.addEventListener("fetch", (event) => {
+  const staticDestinations = ["document", "script", "style", "image", "font", "manifest"];
+
+  if (event.request.method !== "GET" || !staticDestinations.includes(event.request.destination)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse.ok) {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
