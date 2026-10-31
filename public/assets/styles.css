@@ -169,7 +169,8 @@ input {
 }
 
 #todoInput {
-    width: 275px;
+    width: 300px;
+    font-size: 1rem;
 }
 
 input:focus {
